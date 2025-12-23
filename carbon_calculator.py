@@ -34,23 +34,59 @@ def definir_fatores_emissao():
     }
     return fatores
 
-def calcular_emissao(df):
+def calcular_emissao(df, tipo_combustivel=None):
     """
     Calcula as emissões totais (em tCO2e) por viagem usando o consumo de combustível.
+    
+    Aceita dois tipos de entrada:
+    - DataFrame: Processa em lote usando as colunas 'Tipo_Combustivel' e 'Combustivel_L'
+    - Número (int/float): Calcula emissão individual. Requer o parâmetro 'tipo_combustivel'
+    
+    Args:
+        df: DataFrame com colunas 'Tipo_Combustivel' e 'Combustivel_L', ou um número (int/float)
+        tipo_combustivel (str, opcional): Tipo de combustível necessário quando 'df' é um número.
+                                         Deve ser 'Diesel S10', 'Gasolina' ou 'Etanol'
+    
+    Returns:
+        DataFrame: Se a entrada for DataFrame, retorna DataFrame com colunas adicionais
+        float: Se a entrada for número, retorna a emissão calculada em tCO2e
     """
     # 1. Obter os fatores de emissão
     fatores_emissao = definir_fatores_emissao()
     
-    # 2. Mapear o Fator de Emissão para cada linha do DataFrame
-    df['Fator_Emissao'] = df['Tipo_Combustivel'].map(fatores_emissao)
+    # 2. Verificar se a entrada é um número (int ou float)
+    if isinstance(df, (int, float)):
+        # Modo de cálculo individual
+        if tipo_combustivel is None:
+            raise ValueError("Para cálculo individual, é necessário informar o 'tipo_combustivel'")
+        
+        # Verificar se o tipo de combustível existe nos fatores
+        if tipo_combustivel not in fatores_emissao:
+            raise ValueError(f"Tipo de combustível '{tipo_combustivel}' não encontrado. "
+                           f"Tipos disponíveis: {list(fatores_emissao.keys())}")
+        
+        # Calcular emissão individual: Emissão Base = Litros * Fator_Combustível
+        fator = fatores_emissao[tipo_combustivel]
+        emissao_base = df * fator
+        
+        return emissao_base
     
-    # 3. Aplicar a fórmula fundamental: Emissão Base = Litros * Fator_Combustível
-    df['emissao_base'] = df['Combustivel_L'] * df['Fator_Emissao']
+    # 3. Modo DataFrame: Processamento em lote (lógica original)
+    elif isinstance(df, pd.DataFrame):
+        # Mapear o Fator de Emissão para cada linha do DataFrame
+        df['Fator_Emissao'] = df['Tipo_Combustivel'].map(fatores_emissao)
+        
+        # Aplicar a fórmula fundamental: Emissão Base = Litros * Fator_Combustível
+        df['emissao_base'] = df['Combustivel_L'] * df['Fator_Emissao']
+        
+        # Tratar casos onde o tipo de combustível não foi encontrado
+        df['emissao_base'] = df['emissao_base'].fillna(0) 
+        
+        return df
     
-    # 4. Tratar casos onde o tipo de combustível não foi encontrado
-    df['emissao_base'] = df['emissao_base'].fillna(0) 
-    
-    return df
+    else:
+        raise TypeError(f"Tipo de entrada não suportado: {type(df)}. "
+                       f"Esperado: DataFrame, int ou float")
 
 
 def calcular_fator_idade(df):
