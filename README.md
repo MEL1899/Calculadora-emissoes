@@ -28,7 +28,7 @@ Para usar a funcionalidade de mapas e autocomplete de endereços:
 - `carbon_calculator.py` - Funções de cálculo de emissões
 - `config.py` - Configuração da API key do Google Maps
 - `templates/` - Templates HTML
-- `dados_mantram.csv` - Dados de exemplo
+- `dados_exemplo.csv` - Dados de exemplo
 
 ## ⚙️ Funcionalidades
 

@@ -3,19 +3,19 @@ from datetime import datetime
 
 def carregar_dados():
     """
-    Carrega o arquivo 'dados_mantram.csv' no formato UTF-8 e retorna o DataFrame.
+    Carrega o arquivo 'dados_exemplo.csv' no formato UTF-8 e retorna o DataFrame.
     
     Returns:
         pandas.DataFrame: DataFrame com os dados do arquivo CSV
     """
     try:
         # Carrega o arquivo CSV com encoding UTF-8
-        df = pd.read_csv('dados_mantram.csv', encoding='utf-8')
+        df = pd.read_csv('dados_exemplo.csv', encoding='utf-8')
         
         return df
     
     except FileNotFoundError:
-        print("Erro: Arquivo 'dados_mantram.csv' não encontrado.")
+        print("Erro: Arquivo 'dados_exemplo.csv' não encontrado.")
         return None
     except Exception as e:
         print(f"Erro ao carregar o arquivo: {e}")
