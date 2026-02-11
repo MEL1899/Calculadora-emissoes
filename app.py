@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, send_file
 import pandas as pd
 from datetime import datetime
 import os
+from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+from openpyxl.utils import get_column_letter
 from carbon_calculator import (
     calcular_emissao, 
     calcular_fator_idade, 
@@ -21,6 +23,51 @@ except ImportError:
     GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', 'YOUR_API_KEY')
 
 app = Flask(__name__)
+
+# Estilos para o Excel
+_borda_fina = Border(
+    left=Side(style='thin'),
+    right=Side(style='thin'),
+    top=Side(style='thin'),
+    bottom=Side(style='thin')
+)
+_cabecalho_fill = PatternFill(start_color='2d5a3d', end_color='2d5a3d', fill_type='solid')
+_cabecalho_font = Font(bold=True, color='FFFFFF', size=11)
+
+
+def _formatar_tabela_resumo(ws):
+    """Formata a planilha Resumo: largura das colunas, cabeçalho e bordas."""
+    ws.column_dimensions['A'].width = 38
+    ws.column_dimensions['B'].width = 28
+    # Cabeçalho (linha 3)
+    for col in ['A', 'B']:
+        cell = ws[f'{col}3']
+        cell.font = _cabecalho_font
+        cell.fill = _cabecalho_fill
+        cell.alignment = Alignment(horizontal='left', vertical='center', wrap_text=True)
+        cell.border = _borda_fina
+    # Dados (linhas 4 até max_row)
+    for row in range(4, ws.max_row + 1):
+        for col in ['A', 'B']:
+            cell = ws[f'{col}{row}']
+            cell.border = _borda_fina
+            cell.alignment = Alignment(vertical='center', wrap_text=True)
+
+
+def _formatar_sheet_tecnicos(ws):
+    """Formata a planilha Dados técnicos: cabeçalho e bordas."""
+    for col in range(1, ws.max_column + 1):
+        col_letter = get_column_letter(col)
+        ws.column_dimensions[col_letter].width = 18
+    for cell in ws[1]:
+        cell.font = _cabecalho_font
+        cell.fill = _cabecalho_fill
+        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        cell.border = _borda_fina
+    for row in range(2, ws.max_row + 1):
+        for col in range(1, ws.max_column + 1):
+            ws.cell(row=row, column=col).border = _borda_fina
+            ws.cell(row=row, column=col).alignment = Alignment(vertical='center')
 
 @app.context_processor
 def inject_google_maps_key():
@@ -109,8 +156,19 @@ def calcular():
             resumo = pd.concat([resumo.iloc[:idx_efic], nova_linha, resumo.iloc[idx_efic:]]).reset_index(drop=True)
         
         with pd.ExcelWriter(caminho_arquivo, engine='openpyxl') as writer:
-            resumo.to_excel(writer, sheet_name='Resumo', index=False)
+            # Escreve Resumo: título na linha 1, tabela a partir da linha 3
+            resumo.to_excel(writer, sheet_name='Resumo', index=False, startrow=2)
+            ws_resumo = writer.sheets['Resumo']
+            ws_resumo['A1'] = 'Relatório de Emissões de GEE'
+            ws_resumo['A1'].font = Font(bold=True, size=14)
+            ws_resumo.merge_cells('A1:B1')
+            ws_resumo['A2'] = f'Emitido em {datetime.now().strftime("%d/%m/%Y às %H:%M")} — Carbon Log'
+            ws_resumo['A2'].font = Font(size=10, color='666666')
+            ws_resumo.merge_cells('A2:B2')
+            _formatar_tabela_resumo(ws_resumo)
+            # Escreve Dados técnicos
             dados_final.to_excel(writer, sheet_name='Dados técnicos', index=False)
+            _formatar_sheet_tecnicos(writer.sheets['Dados técnicos'])
         
         # 6. Prepara dados para o template
         data_relatorio = datetime.now().strftime('%d/%m/%Y às %H:%M')
