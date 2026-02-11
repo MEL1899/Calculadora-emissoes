@@ -29,7 +29,7 @@ def inject_google_maps_key():
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', ano_atual=datetime.now().year)
 
 @app.route('/calcular', methods=['POST'])
 def calcular():
@@ -91,8 +91,11 @@ def calcular():
         ano_atual = datetime.now().year
         idade_veiculo = ano_atual - ano_fabricacao
         
+        tipo_veiculo_label = 'Caminhão' if tipo_veiculo == 'caminhao' else 'Carro'
         dados_template = {
             'email': email,
+            'tipo_veiculo': tipo_veiculo_label,
+            'tipo_veiculo_raw': tipo_veiculo,
             'tipo_combustivel': tipo_combustivel,
             'litros': f"{litros:.2f}",
             'ano_fabricacao': ano_fabricacao,

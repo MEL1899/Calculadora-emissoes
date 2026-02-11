@@ -214,7 +214,6 @@
 </head>
 <body>
     <h1>🌱 Cálculo de Emissões GEE</h1>
-    <p class="subtitle">Projeto de Engenharia Ambiental - USP São Carlos</p>
 
     <div class="formulario">
         <form action="/calcular" method="post" id="formCalculo">
@@ -253,7 +252,11 @@
 
             <div class="form-group">
                 <label>Ano de Fabricação do Veículo:</label>
-                <input type="number" name="ano_fabricacao" min="1980" max="2025" required placeholder="Ex: 2020">
+                <select name="ano_fabricacao" required>
+                    {% for ano in range(ano_atual, 1989, -1) %}
+                    <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
+                    {% endfor %}
+                </select>
                 <span class="info-text">Necessário para calcular o fator de ajuste por idade</span>
             </div>
 
@@ -595,7 +598,7 @@
                         // Mostra resultado
                         const resultDiv = document.getElementById('distance_result');
                         resultDiv.style.display = 'block';
-                        resultDiv.innerHTML = `📍 Distância calculada: ${distanciaKm} km (distância de estrada)`;
+                        resultDiv.innerHTML = '📍 Distância calculada e preenchida no campo "Quilômetros Rodados" abaixo.';
                         
                         // Ajusta zoom para mostrar toda a rota
                         const bounds = new google.maps.LatLngBounds();
@@ -616,7 +619,7 @@
                         
                         const resultDiv = document.getElementById('distance_result');
                         resultDiv.style.display = 'block';
-                        resultDiv.innerHTML = `⚠️ Distância aproximada: ${distanciaKm} km (linha reta - não foi possível calcular rota)`;
+                        resultDiv.innerHTML = '⚠️ Distância aproximada preenchida no campo "Quilômetros Rodados" (linha reta - rota não calculada).';
                         
                         // Desenha linha reta como fallback
                         if (window.routeLine) {
