@@ -79,6 +79,9 @@ def calcular():
         
         # 4. Extrai os resultados para exibição
         resultado = dados_final.iloc[0]  # Primeira (e única) linha
+        ano_atual = datetime.now().year
+        idade_veiculo = ano_atual - ano_fabricacao
+        tipo_veiculo_label = 'Caminhão' if tipo_veiculo == 'caminhao' else 'Carro'
         
         # 5. Gera relatório Excel individual (Resumo em português + Dados técnicos)
         nome_arquivo = f"Relatorio_Carbono_Individual_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
@@ -110,10 +113,6 @@ def calcular():
             dados_final.to_excel(writer, sheet_name='Dados técnicos', index=False)
         
         # 6. Prepara dados para o template
-        ano_atual = datetime.now().year
-        idade_veiculo = ano_atual - ano_fabricacao
-        
-        tipo_veiculo_label = 'Caminhão' if tipo_veiculo == 'caminhao' else 'Carro'
         data_relatorio = datetime.now().strftime('%d/%m/%Y às %H:%M')
         dados_template = {
             'data_relatorio': data_relatorio,
