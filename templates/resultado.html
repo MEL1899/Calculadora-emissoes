@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultado do Cálculo - Carbon Log</title>
+    <title>Relatório de Emissões - Carbon Log</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -22,91 +22,141 @@
         h1 { 
             color: #2c3e50; 
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            font-size: 1.6rem;
+        }
+        .relatorio-data {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-bottom: 20px;
         }
         .success-message {
             background: #d4edda;
             color: #155724;
-            padding: 15px;
+            padding: 12px 15px;
             border-radius: 5px;
             margin-bottom: 20px;
             border: 1px solid #c3e6cb;
         }
+        .resumo-principal {
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            color: white;
+            padding: 28px;
+            border-radius: 10px;
+            margin: 0 0 25px 0;
+            text-align: center;
+        }
+        .resumo-principal h2 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+        .resumo-valor {
+            font-size: 42px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .resumo-unidade {
+            font-size: 22px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+        .resumo-desc {
+            margin: 10px 0 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .relatorio-section {
+            margin: 25px 0;
+        }
+        .relatorio-section h2 {
+            font-size: 15px;
+            color: #2c3e50;
+            margin: 0 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #3498db;
+        }
+        table.relatorio-tabela {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        table.relatorio-tabela th,
+        table.relatorio-tabela td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        table.relatorio-tabela th {
+            background: #f0f4f8;
+            color: #2c3e50;
+            font-weight: 600;
+            width: 45%;
+        }
+        table.relatorio-tabela tr:hover td {
+            background: #fafafa;
+        }
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
         }
         .result-card {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 18px;
             border-radius: 8px;
             border-left: 4px solid #3498db;
         }
         .result-card h3 {
             margin-top: 0;
             color: #2c3e50;
-            font-size: 14px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .result-value {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            color: #3498db;
-            margin: 10px 0;
+            color: #2c3e50;
+            margin: 8px 0;
         }
         .result-unit {
-            font-size: 14px;
+            font-size: 13px;
             color: #7f8c8d;
-        }
-        .info-section {
-            background: #e8f4f8;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .info-section h2 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #34495e;
-        }
-        .info-value {
-            color: #2c3e50;
         }
         .btn-group {
             display: flex;
             gap: 10px;
-            margin-top: 30px;
+            margin-top: 28px;
+            flex-wrap: wrap;
         }
         .btn {
-            flex: 1;
-            padding: 12px;
+            padding: 12px 20px;
             text-align: center;
             text-decoration: none;
             border-radius: 5px;
             font-weight: 600;
+            font-size: 14px;
             transition: all 0.3s;
         }
+        .btn-print {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-print:hover {
+            background: #1a252f;
+        }
         .btn-primary {
-            background: #3498db;
+            background: #27ae60;
             color: white;
         }
         .btn-primary:hover {
-            background: #2980b9;
+            background: #219a52;
         }
         .btn-secondary {
             background: #95a5a6;
@@ -116,110 +166,72 @@
             background: #7f8c8d;
         }
         .highlight {
-            background: #fff3cd;
+            background: #e8f5e9;
             padding: 15px;
             border-radius: 5px;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid #27ae60;
             margin: 20px 0;
         }
-        .resumo-principal {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 25px 0;
-            text-align: center;
-        }
-        .resumo-principal h2 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            font-weight: 600;
-            opacity: 0.95;
-        }
-        .resumo-valor {
-            font-size: 36px;
-            font-weight: bold;
-            margin: 5px 0;
-        }
-        .resumo-unidade {
-            font-size: 20px;
-            font-weight: 500;
-            opacity: 0.9;
-        }
-        .resumo-desc {
-            margin: 10px 0 0 0;
-            font-size: 13px;
-            opacity: 0.9;
-        }
-        .info-section h2 {
-            font-size: 16px;
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            .btn-group, .success-message, .highlight { display: none !important; }
+            .resumo-principal { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Resultado do Cálculo de Emissões</h1>
+        <h1>Relatório de Emissões de GEE</h1>
+        <p class="relatorio-data">Carbon Log — Relatório emitido em {{ data_relatorio }}</p>
         
         <div class="success-message">
-            ✅ Cálculo realizado com sucesso! Relatório completo gerado.
+            ✅ Cálculo realizado com sucesso.
         </div>
 
         <div class="resumo-principal">
-            <h2>Emissão Total da Viagem</h2>
+            <h2>Emissão total da viagem</h2>
             <div class="resumo-valor">{{ emissao_final }} <span class="resumo-unidade">tCO2e</span></div>
-            <p class="resumo-desc">Emissão final com ajuste pela idade do veículo</p>
+            <p class="resumo-desc">Emissão final (consumo + ajuste pela idade do veículo)</p>
         </div>
 
-        <div class="info-section">
-            <h2>📋 Dados da Viagem</h2>
-            <div class="info-row">
-                <span class="info-label">Tipo de Veículo:</span>
-                <span class="info-value">{{ tipo_veiculo }}</span>
-            </div>
-            {% if tipo_veiculo_raw == 'caminhao' %}
-            <div class="info-row">
-                <span class="info-label">Carga Transportada:</span>
-                <span class="info-value">{{ carga_ton }} toneladas</span>
-            </div>
-            {% endif %}
-            <div class="info-row">
-                <span class="info-label">E-mail:</span>
-                <span class="info-value">{{ email }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Tipo de Combustível:</span>
-                <span class="info-value">{{ tipo_combustivel }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Litros Consumidos:</span>
-                <span class="info-value">{{ litros }} L</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Ano de Fabricação:</span>
-                <span class="info-value">{{ ano_fabricacao }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Idade do Veículo:</span>
-                <span class="info-value">{{ idade_veiculo }} anos</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Quilômetros Rodados:</span>
-                <span class="info-value">{{ km_rodado }} km</span>
-            </div>
-            {% if endereco_origem and endereco_origem != 'Não informado' %}
-            <div class="info-row">
-                <span class="info-label">📍 Origem:</span>
-                <span class="info-value">{{ endereco_origem }}</span>
-            </div>
-            {% endif %}
-            {% if endereco_destino and endereco_destino != 'Não informado' %}
-            <div class="info-row">
-                <span class="info-label">📍 Destino:</span>
-                <span class="info-value">{{ endereco_destino }}</span>
-            </div>
-            {% endif %}
+        <div class="relatorio-section">
+            <h2>Dados da viagem</h2>
+            <table class="relatorio-tabela">
+                <tr><th>Tipo de veículo</th><td>{{ tipo_veiculo }}</td></tr>
+                <tr><th>Combustível</th><td>{{ tipo_combustivel }}</td></tr>
+                <tr><th>Litros consumidos</th><td>{{ litros }} L</td></tr>
+                <tr><th>Ano de fabricação</th><td>{{ ano_fabricacao }}</td></tr>
+                <tr><th>Idade do veículo</th><td>{{ idade_veiculo }} anos</td></tr>
+                <tr><th>Quilômetros rodados</th><td>{{ km_rodado }} km</td></tr>
+                {% if tipo_veiculo_raw == 'caminhao' %}
+                <tr><th>Carga transportada</th><td>{{ carga_ton }} toneladas</td></tr>
+                {% endif %}
+                {% if endereco_origem and endereco_origem != 'Não informado' %}
+                <tr><th>Origem</th><td>{{ endereco_origem }}</td></tr>
+                {% endif %}
+                {% if endereco_destino and endereco_destino != 'Não informado' %}
+                <tr><th>Destino</th><td>{{ endereco_destino }}</td></tr>
+                {% endif %}
+            </table>
         </div>
 
+        <div class="relatorio-section">
+            <h2>Resultados do cálculo</h2>
+            <table class="relatorio-tabela">
+                <tr><th>Emissão base</th><td>{{ emissao_base }} tCO2e</td></tr>
+                <tr><th>Fator de idade</th><td>{{ fator_idade }}</td></tr>
+                <tr><th>Emissão final</th><td>{{ emissao_final }} tCO2e</td></tr>
+                <tr><th>Intensidade (por km)</th><td>{{ intensidade_km }} tCO2e/km</td></tr>
+                <tr><th>Eficiência</th><td>{{ eficiencia }} km/L</td></tr>
+                {% if tipo_veiculo_raw == 'caminhao' %}
+                <tr><th>Intensidade (por tonelada)</th><td>{{ intensidade_ton }} tCO2e/ton</td></tr>
+                {% endif %}
+            </table>
+        </div>
+
+        <div class="relatorio-section">
+            <h2>Resumo em cards</h2>
         <div class="results-grid">
             <div class="result-card">
                 <h3>Emissão Base</h3>
@@ -277,18 +289,20 @@
                 </p>
             </div>
         </div>
+        </div>
 
         <div class="highlight">
-            <strong>📎 Relatório Excel gerado:</strong> O arquivo "Relatorio_Carbono_Individual.xlsx" foi salvo no servidor.
+            <strong>📎 Relatório Excel:</strong> documento completo para arquivo ou envio.
             {% if arquivo_relatorio %}
-            <br><a href="{{ arquivo_relatorio }}" download style="color: #3498db;">📥 Baixar Relatório Excel</a>
+            <a href="{{ arquivo_relatorio }}" download class="btn btn-primary" style="display: inline-block; margin-top: 10px;">📥 Baixar Excel</a>
             {% endif %}
         </div>
 
         <div class="btn-group">
-            <a href="/" class="btn btn-secondary">↩️ Novo Cálculo</a>
+            <button type="button" class="btn btn-print" onclick="window.print();">🖨️ Imprimir / Salvar PDF</button>
+            <a href="/" class="btn btn-secondary">↩️ Novo cálculo</a>
             {% if arquivo_relatorio %}
-            <a href="{{ arquivo_relatorio }}" download class="btn btn-primary">📥 Baixar Relatório</a>
+            <a href="{{ arquivo_relatorio }}" download class="btn btn-primary">📥 Baixar Excel</a>
             {% endif %}
         </div>
     </div>

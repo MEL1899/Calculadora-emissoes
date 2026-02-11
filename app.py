@@ -80,19 +80,43 @@ def calcular():
         # 4. Extrai os resultados para exibição
         resultado = dados_final.iloc[0]  # Primeira (e única) linha
         
-        # 5. Gera relatório Excel individual
+        # 5. Gera relatório Excel individual (Resumo em português + Dados técnicos)
         nome_arquivo = f"Relatorio_Carbono_Individual_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         caminho_arquivo = os.path.join(os.getcwd(), nome_arquivo)
         
-        # Salva o relatório Excel
-        dados_final.to_excel(caminho_arquivo, index=False)
+        # Planilha Resumo: relatório legível em português
+        resumo = pd.DataFrame({
+            'Item': [
+                'Tipo de veículo', 'Combustível', 'Litros consumidos (L)', 'Ano de fabricação',
+                'Idade do veículo (anos)', 'Quilômetros rodados (km)', 'Emissão base (tCO2e)',
+                'Fator de idade', 'Emissão final (tCO2e)', 'Intensidade por km (tCO2e/km)',
+                'Eficiência (km/L)', 'E-mail', 'Data do relatório'
+            ],
+            'Valor': [
+                tipo_veiculo_label, tipo_combustivel, f'{litros:.2f}', str(ano_fabricacao),
+                str(idade_veiculo), f'{km_rodado:.2f}', f"{resultado['emissao_base']:.4f}",
+                f"{resultado['Fator_idade']:.4f}", f"{resultado['emissao_final']:.4f}",
+                f"{resultado['Intensidade_tCO2e_por_KM']:.6f}", f"{resultado['Eficiencia_KM_por_L']:.2f}",
+                email, datetime.now().strftime('%d/%m/%Y %H:%M')
+            ]
+        })
+        if tipo_veiculo == 'caminhao':
+            idx_efic = resumo[resumo['Item'] == 'Eficiência (km/L)'].index[0]
+            nova_linha = pd.DataFrame({'Item': ['Carga transportada (toneladas)', 'Intensidade por tonelada (tCO2e/ton)'], 'Valor': [f'{carga_ton:.2f}', f"{resultado['Intensidade_tCO2e_por_Ton']:.6f}"]})
+            resumo = pd.concat([resumo.iloc[:idx_efic], nova_linha, resumo.iloc[idx_efic:]]).reset_index(drop=True)
+        
+        with pd.ExcelWriter(caminho_arquivo, engine='openpyxl') as writer:
+            resumo.to_excel(writer, sheet_name='Resumo', index=False)
+            dados_final.to_excel(writer, sheet_name='Dados técnicos', index=False)
         
         # 6. Prepara dados para o template
         ano_atual = datetime.now().year
         idade_veiculo = ano_atual - ano_fabricacao
         
         tipo_veiculo_label = 'Caminhão' if tipo_veiculo == 'caminhao' else 'Carro'
+        data_relatorio = datetime.now().strftime('%d/%m/%Y às %H:%M')
         dados_template = {
+            'data_relatorio': data_relatorio,
             'email': email,
             'tipo_veiculo': tipo_veiculo_label,
             'tipo_veiculo_raw': tipo_veiculo,
