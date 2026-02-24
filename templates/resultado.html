@@ -4,186 +4,211 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Emissões - Carbon Log</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            max-width: 900px; 
-            margin: 50px auto; 
-            padding: 20px; 
+        :root {
+            --cor-primaria: #0d5c4a;
+            --cor-primaria-hover: #0a4a3b;
+            --cor-secundaria: #1a7a63;
+            --cor-fundo: #f0f7f5;
+            --cor-fundo-card: #ffffff;
+            --cor-texto: #1a2e28;
+            --cor-texto-suave: #5a6d67;
+            --cor-borda: #d4e5e1;
+            --sombra: 0 4px 20px rgba(13, 92, 74, 0.08);
+            --raio: 12px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
             line-height: 1.6;
-            background-color: #f5f5f5;
+            background: var(--cor-fundo);
+            color: var(--cor-texto);
         }
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--cor-fundo-card);
+            padding: 32px;
+            border-radius: var(--raio);
+            box-shadow: var(--sombra);
+            border: 1px solid var(--cor-borda);
         }
-        h1 { 
-            color: #2c3e50; 
+        .page-header {
             text-align: center;
-            margin-bottom: 5px;
-            font-size: 1.6rem;
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--cor-texto);
+            margin: 0 0 4px 0;
+            letter-spacing: -0.02em;
         }
         .relatorio-data {
-            text-align: center;
-            color: #7f8c8d;
-            font-size: 13px;
-            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: var(--cor-texto-suave);
         }
         .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border: 1px solid #c3e6cb;
+            background: rgba(13, 92, 74, 0.1);
+            color: var(--cor-primaria);
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid var(--cor-borda);
+            font-weight: 500;
         }
         .resumo-principal {
-            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            background: linear-gradient(135deg, #0d5c4a 0%, #1a7a63 100%);
             color: white;
-            padding: 28px;
-            border-radius: 10px;
-            margin: 0 0 25px 0;
+            padding: 28px 24px;
+            border-radius: var(--raio);
+            margin: 0 0 28px 0;
             text-align: center;
         }
         .resumo-principal h2 {
             margin: 0 0 8px 0;
-            font-size: 16px;
+            font-size: 0.9rem;
             font-weight: 600;
             opacity: 0.95;
         }
         .resumo-valor {
-            font-size: 42px;
-            font-weight: bold;
-            margin: 5px 0;
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin: 4px 0;
+            letter-spacing: -0.02em;
         }
         .resumo-unidade {
-            font-size: 22px;
+            font-size: 1.2rem;
             font-weight: 500;
-            opacity: 0.9;
+            opacity: 0.95;
         }
         .resumo-desc {
             margin: 10px 0 0 0;
-            font-size: 13px;
+            font-size: 0.85rem;
             opacity: 0.9;
         }
         .relatorio-section {
-            margin: 25px 0;
+            margin: 28px 0;
         }
         .relatorio-section h2 {
-            font-size: 15px;
-            color: #2c3e50;
-            margin: 0 0 12px 0;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #3498db;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--cor-primaria);
+            margin: 0 0 14px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--cor-borda);
         }
         table.relatorio-tabela {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--cor-borda);
         }
         table.relatorio-tabela th,
         table.relatorio-tabela td {
-            padding: 10px 12px;
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid var(--cor-borda);
         }
+        table.relatorio-tabela tr:last-child td { border-bottom: none; }
         table.relatorio-tabela th {
-            background: #f0f4f8;
-            color: #2c3e50;
+            background: var(--cor-fundo);
+            color: var(--cor-texto);
             font-weight: 600;
-            width: 45%;
+            width: 42%;
         }
         table.relatorio-tabela tr:hover td {
-            background: #fafafa;
+            background: rgba(13, 92, 74, 0.03);
         }
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin: 18px 0 0 0;
         }
         .result-card {
-            background: #f8f9fa;
+            background: var(--cor-fundo);
             padding: 18px;
             border-radius: 8px;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid var(--cor-primaria);
+            transition: box-shadow 0.2s;
+        }
+        .result-card:hover {
+            box-shadow: 0 2px 12px rgba(13, 92, 74, 0.1);
         }
         .result-card h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            font-size: 12px;
+            margin: 0 0 6px 0;
+            color: var(--cor-texto-suave);
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.06em;
         }
         .result-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin: 8px 0;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--cor-texto);
+            margin: 4px 0 2px 0;
         }
         .result-unit {
-            font-size: 13px;
-            color: #7f8c8d;
+            font-size: 0.8rem;
+            color: var(--cor-texto-suave);
         }
         .btn-group {
             display: flex;
-            gap: 10px;
-            margin-top: 28px;
+            gap: 12px;
+            margin-top: 32px;
             flex-wrap: wrap;
         }
         .btn {
-            padding: 12px 20px;
+            padding: 14px 22px;
             text-align: center;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: background 0.2s, transform 0.1s;
         }
+        .btn:active { transform: scale(0.98); }
         .btn-print {
-            background: #2c3e50;
+            background: var(--cor-texto);
             color: white;
             border: none;
             cursor: pointer;
         }
-        .btn-print:hover {
-            background: #1a252f;
-        }
+        .btn-print:hover { background: #0d1f1b; }
         .btn-primary {
-            background: #27ae60;
+            background: var(--cor-primaria);
             color: white;
         }
-        .btn-primary:hover {
-            background: #219a52;
-        }
+        .btn-primary:hover { background: var(--cor-primaria-hover); }
         .btn-secondary {
-            background: #95a5a6;
+            background: var(--cor-texto-suave);
             color: white;
         }
-        .btn-secondary:hover {
-            background: #7f8c8d;
-        }
-        .highlight {
-            background: #e8f5e9;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #27ae60;
-            margin: 20px 0;
-        }
+        .btn-secondary:hover { background: #4a5d58; }
         @media print {
             body { background: white; }
-            .container { box-shadow: none; }
-            .btn-group, .success-message, .highlight { display: none !important; }
+            .container { box-shadow: none; border: none; }
+            .btn-group, .success-message { display: none !important; }
             .resumo-principal { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Relatório de Emissões de GEE</h1>
-        <p class="relatorio-data">Carbon Log — Relatório emitido em {{ data_relatorio }}</p>
+        <div class="page-header">
+            <h1>Relatório de Emissões de GEE</h1>
+            <p class="relatorio-data">Carbon Log — {{ data_relatorio }}</p>
+        </div>
         
         <div class="success-message">
             ✅ Cálculo realizado com sucesso.
@@ -289,13 +314,6 @@
                 </p>
             </div>
         </div>
-        </div>
-
-        <div class="highlight">
-            <strong>📎 Relatório Excel:</strong> documento completo para arquivo ou envio.
-            {% if arquivo_relatorio %}
-            <a href="{{ arquivo_relatorio }}" download class="btn btn-primary" style="display: inline-block; margin-top: 10px;">📥 Baixar Excel</a>
-            {% endif %}
         </div>
 
         <div class="btn-group">
