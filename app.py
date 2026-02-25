@@ -69,6 +69,29 @@ def _formatar_sheet_tecnicos(ws):
             ws.cell(row=row, column=col).border = _borda_fina
             ws.cell(row=row, column=col).alignment = Alignment(vertical='center')
 
+
+def _obter_consumo_medio_km_por_litro(tipo_veiculo: str, tipo_combustivel: str) -> float:
+    """
+    Retorna um consumo médio aproximado (km/L) por tipo de veículo e combustível.
+    Valores apenas indicativos para cálculo estimado.
+    """
+    medias = {
+        'carro': {
+            'Gasolina': 12.0,
+            'Etanol': 8.0,
+            'Diesel S10': 14.0,
+        },
+        'caminhao': {
+            'Diesel S10': 2.5,
+            'Gasolina': 2.0,
+            'Etanol': 1.8,
+        }
+    }
+    tipo = medias.get(tipo_veiculo.lower(), {})
+    valor = tipo.get(tipo_combustivel, 5.0)
+    return float(valor) if valor > 0 else 5.0
+
+
 @app.context_processor
 def inject_google_maps_key():
     """Injeta a API key do Google Maps em todos os templates"""
@@ -85,11 +108,24 @@ def calcular():
         email = request.form['email']
         tipo_veiculo = request.form.get('tipo_veiculo', 'carro')  # Default para carro
         tipo_combustivel = request.form['tipo_combustivel']
-        litros = float(request.form['litros'])
+        modo_calculo = request.form.get('modo_calculo', 'preciso')
         ano_fabricacao = int(request.form['ano_fabricacao'])
-        km_rodado = float(request.form['km_rodado'])
+        km_rodado = float(request.form.get('km_rodado', 0) or 0)
         # Campo de carga é opcional para carros (será 0 se não fornecido)
-        carga_ton = float(request.form.get('carga_ton', 0))
+        carga_ton = float(request.form.get('carga_ton', 0) or 0)
+
+        # Define litros conforme o modo de cálculo
+        litros_estimado = False
+        if modo_calculo == 'preciso':
+            litros = float(request.form['litros'])
+        else:
+            # Estimativa de litros com base em km rodado e consumo médio
+            consumo_medio = _obter_consumo_medio_km_por_litro(tipo_veiculo, tipo_combustivel)
+            if km_rodado <= 0 or consumo_medio <= 0:
+                litros = 0.0
+            else:
+                litros = km_rodado / consumo_medio
+            litros_estimado = True
         
         # Dados de localização (opcionais)
         endereco_origem = request.form.get('endereco_origem', '')
@@ -129,6 +165,25 @@ def calcular():
         ano_atual = datetime.now().year
         idade_veiculo = ano_atual - ano_fabricacao
         tipo_veiculo_label = 'Caminhão' if tipo_veiculo == 'caminhao' else 'Carro'
+        modo_calculo_label = 'Modo preciso' if modo_calculo == 'preciso' else 'Modo estimado'
+        modo_calculo_selo = 'Alta precisão' if modo_calculo == 'preciso' else 'Resultado estimado (consumo médio)'
+        litros_texto_origem = 'informados pelo usuário' if not litros_estimado else 'estimados a partir dos km rodados'
+
+        # Comparação com média de intensidade do setor (valor fixo simulado)
+        media_setor_intensidade_km = 0.0008  # tCO2e/km (valor de referência fixo)
+        intensidade_km_valor = float(resultado['Intensidade_tCO2e_por_KM'])
+        if km_rodado > 0 and intensidade_km_valor > 0 and media_setor_intensidade_km > 0:
+            diff_percent = (intensidade_km_valor - media_setor_intensidade_km) / media_setor_intensidade_km * 100
+            if diff_percent > 5:
+                situacao_setor = 'acima'
+            elif diff_percent < -5:
+                situacao_setor = 'abaixo'
+            else:
+                situacao_setor = 'na faixa da'
+            diff_percent_formatado = f"{abs(diff_percent):.1f}"
+        else:
+            situacao_setor = 'indisponível'
+            diff_percent_formatado = None
         
         # 5. Gera relatório Excel individual (Resumo em português + Dados técnicos)
         nome_arquivo = f"Relatorio_Carbono_Individual_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
@@ -174,6 +229,11 @@ def calcular():
         data_relatorio = datetime.now().strftime('%d/%m/%Y às %H:%M')
         dados_template = {
             'data_relatorio': data_relatorio,
+            'modo_calculo': modo_calculo,
+            'modo_calculo_label': modo_calculo_label,
+            'modo_calculo_selo': modo_calculo_selo,
+            'litros_estimado': litros_estimado,
+            'litros_texto_origem': litros_texto_origem,
             'email': email,
             'tipo_veiculo': tipo_veiculo_label,
             'tipo_veiculo_raw': tipo_veiculo,
@@ -191,6 +251,9 @@ def calcular():
             'intensidade_ton': f"{resultado['Intensidade_tCO2e_por_Ton']:.6f}",
             'intensidade_km': f"{resultado['Intensidade_tCO2e_por_KM']:.6f}",
             'eficiencia': f"{resultado['Eficiencia_KM_por_L']:.2f}",
+            'media_setor_intensidade_km': f"{media_setor_intensidade_km:.6f}",
+            'comparacao_setor_percentual': diff_percent_formatado,
+            'comparacao_setor_situacao': situacao_setor,
             'arquivo_relatorio': f"/download/{nome_arquivo}"
         }
         

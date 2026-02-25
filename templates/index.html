@@ -283,7 +283,21 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Litros de combustível</label>
+                <label>Modo de cálculo</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="modo_preciso" name="modo_calculo" value="preciso" checked>
+                        <label for="modo_preciso">Preciso (litros reais)</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="modo_estimado" name="modo_calculo" value="estimado">
+                        <label for="modo_estimado">Estimado (com base em km)</label>
+                    </div>
+                </div>
+                <span class="info-text">Informe os litros consumidos ou deixe o sistema estimar a partir dos quilômetros rodados.</span>
+            </div>
+            <div class="form-group">
+                <label data-label-litros>Litros de combustível</label>
                 <input type="number" name="litros" step="0.01" min="0" required placeholder="Ex: 500,5">
             </div>
             <div class="form-group">
@@ -680,11 +694,40 @@
             radio.addEventListener('change', toggleCampoCarga);
         });
 
+        // Alterna UI de acordo com o modo de cálculo (preciso x estimado)
+        function toggleModoCalculo() {
+            const modo = document.querySelector('input[name="modo_calculo"]:checked')?.value || 'preciso';
+            const campoLitros = document.querySelector('input[name="litros"]');
+            const labelLitros = document.querySelector('[data-label-litros]');
+            
+            if (!campoLitros || !labelLitros) return;
+
+            if (modo === 'estimado') {
+                campoLitros.disabled = true;
+                campoLitros.required = false;
+                campoLitros.value = '';
+                campoLitros.placeholder = 'Será estimado a partir dos km rodados';
+                labelLitros.textContent = 'Litros de combustível (estimado)';
+            } else {
+                campoLitros.disabled = false;
+                campoLitros.required = true;
+                campoLitros.placeholder = 'Ex: 500,5';
+                labelLitros.textContent = 'Litros de combustível';
+            }
+        }
+
+        document.querySelectorAll('input[name="modo_calculo"]').forEach(radio => {
+            radio.addEventListener('change', toggleModoCalculo);
+        });
+
         // Botão para calcular distância manualmente
         document.getElementById('btn_calcular_distancia').addEventListener('click', calcularDistancia);
 
         // Executa na carga da página para definir o estado inicial
-        document.addEventListener('DOMContentLoaded', toggleCampoCarga);
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleCampoCarga();
+            toggleModoCalculo();
+        });
         
         // Função para lidar com erro de autenticação do Google Maps
         window.gm_authFailure = function() {

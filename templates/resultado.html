@@ -91,6 +91,17 @@
             font-size: 0.85rem;
             opacity: 0.9;
         }
+        .modo-selo {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-top: 10px;
+        }
         .relatorio-section {
             margin: 28px 0;
         }
@@ -195,6 +206,22 @@
             color: white;
         }
         .btn-secondary:hover { background: #4a5d58; }
+        .cta-frota {
+            background: var(--cor-fundo);
+            padding: 20px 18px;
+            border-radius: 10px;
+            border: 1px dashed var(--cor-borda);
+            margin-top: 12px;
+        }
+        .cta-frota h3 {
+            margin: 0 0 6px 0;
+            font-size: 0.95rem;
+        }
+        .cta-frota p {
+            margin: 0 0 12px 0;
+            font-size: 0.85rem;
+            color: var(--cor-texto-suave);
+        }
         @media print {
             body { background: white; }
             .container { box-shadow: none; border: none; }
@@ -218,14 +245,22 @@
             <h2>Emissão total da viagem</h2>
             <div class="resumo-valor">{{ emissao_final }} <span class="resumo-unidade">tCO2e</span></div>
             <p class="resumo-desc">Emissão final (consumo + ajuste pela idade do veículo)</p>
+            <div class="modo-selo">
+                {% if modo_calculo == 'preciso' %}
+                <span>🔒 {{ modo_calculo_selo }}</span>
+                {% else %}
+                <span>≈ {{ modo_calculo_selo }}</span>
+                {% endif %}
+            </div>
         </div>
 
         <div class="relatorio-section">
             <h2>Dados da viagem</h2>
             <table class="relatorio-tabela">
                 <tr><th>Tipo de veículo</th><td>{{ tipo_veiculo }}</td></tr>
+                <tr><th>Modo de cálculo</th><td>{{ modo_calculo_label }}</td></tr>
                 <tr><th>Combustível</th><td>{{ tipo_combustivel }}</td></tr>
-                <tr><th>Litros consumidos</th><td>{{ litros }} L</td></tr>
+                <tr><th>Litros consumidos</th><td>{{ litros }} L <span style="font-size: 0.8rem; color: #7f8c8d;">({{ litros_texto_origem }})</span></td></tr>
                 <tr><th>Ano de fabricação</th><td>{{ ano_fabricacao }}</td></tr>
                 <tr><th>Idade do veículo</th><td>{{ idade_veiculo }} anos</td></tr>
                 <tr><th>Quilômetros rodados</th><td>{{ km_rodado }} km</td></tr>
@@ -247,11 +282,35 @@
                 <tr><th>Emissão base</th><td>{{ emissao_base }} tCO2e</td></tr>
                 <tr><th>Fator de idade</th><td>{{ fator_idade }}</td></tr>
                 <tr><th>Emissão final</th><td>{{ emissao_final }} tCO2e</td></tr>
-                <tr><th>Intensidade (por km)</th><td>{{ intensidade_km }} tCO2e/km</td></tr>
+                <tr><th>Emissão por km</th><td>{{ intensidade_km }} tCO2e/km</td></tr>
                 <tr><th>Eficiência</th><td>{{ eficiencia }} km/L</td></tr>
                 {% if tipo_veiculo_raw == 'caminhao' %}
                 <tr><th>Intensidade (por tonelada)</th><td>{{ intensidade_ton }} tCO2e/ton</td></tr>
                 {% endif %}
+            </table>
+        </div>
+
+        <div class="relatorio-section">
+            <h2>Comparação com média do setor</h2>
+            <table class="relatorio-tabela">
+                <tr>
+                    <th>Média de referência (setor)</th>
+                    <td>{{ media_setor_intensidade_km }} tCO2e/km</td>
+                </tr>
+                <tr>
+                    <th>Seu resultado</th>
+                    <td>{{ intensidade_km }} tCO2e/km</td>
+                </tr>
+                <tr>
+                    <th>Comparação</th>
+                    <td>
+                        {% if comparacao_setor_situacao == 'indisponível' %}
+                            Não foi possível comparar (km ou emissões zeradas).
+                        {% else %}
+                            Aproximadamente {{ comparacao_setor_percentual }}% {{ comparacao_setor_situacao }} da média de referência.
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
 
@@ -314,6 +373,14 @@
                 </p>
             </div>
         </div>
+        </div>
+
+        <div class="relatorio-section">
+            <div class="cta-frota">
+                <h3>Torne o cálculo automático para toda sua frota.</h3>
+                <p>Integre o Carbon Log com os dados de abastecimento e telemetria e gere relatórios consolidados para todos os veículos.</p>
+                <a href="#" class="btn btn-primary">Conhecer versão empresarial</a>
+            </div>
         </div>
 
         <div class="btn-group">
