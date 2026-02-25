@@ -282,7 +282,9 @@
                 <tr><th>Emissão base</th><td>{{ emissao_base }} tCO2e</td></tr>
                 <tr><th>Fator de idade</th><td>{{ fator_idade }}</td></tr>
                 <tr><th>Emissão final</th><td>{{ emissao_final }} tCO2e</td></tr>
+                {% if km_rodado|float > 0 %}
                 <tr><th>Emissão por km</th><td>{{ intensidade_km }} tCO2e/km</td></tr>
+                {% endif %}
                 <tr><th>Eficiência</th><td>{{ eficiencia }} km/L</td></tr>
                 {% if tipo_veiculo_raw == 'caminhao' %}
                 <tr><th>Intensidade (por tonelada)</th><td>{{ intensidade_ton }} tCO2e/ton</td></tr>
@@ -355,6 +357,7 @@
             </div>
             {% endif %}
 
+            {% if km_rodado|float > 0 %}
             <div class="result-card">
                 <h3>Intensidade por KM</h3>
                 <div class="result-value">{{ intensidade_km }}</div>
@@ -363,6 +366,7 @@
                     Emissões por quilômetro rodado
                 </p>
             </div>
+            {% endif %}
 
             <div class="result-card">
                 <h3>Eficiência</h3>
@@ -379,6 +383,7 @@
             <div class="cta-frota">
                 <h3>Torne o cálculo automático para toda sua frota.</h3>
                 <p>Integre o Carbon Log com os dados de abastecimento e telemetria e gere relatórios consolidados para todos os veículos.</p>
+                <p>Empresas que precisam reportar emissões ao GHG Protocol ou clientes ESG exigentes utilizam relatórios auditáveis.</p>
                 <a href="#" class="btn btn-primary">Conhecer versão empresarial</a>
             </div>
         </div>
@@ -387,7 +392,7 @@
             <button type="button" class="btn btn-print" onclick="window.print();">🖨️ Imprimir / Salvar PDF</button>
             <a href="/" class="btn btn-secondary">↩️ Novo cálculo</a>
             {% if arquivo_relatorio %}
-            <a href="{{ arquivo_relatorio }}" download class="btn btn-primary">📥 Baixar Excel</a>
+            <a href="{{ arquivo_relatorio }}" download class="btn btn-primary">📥 Baixar PDF</a>
             {% endif %}
         </div>
     </div>
