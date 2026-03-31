@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carbon Log — Calculadora de Emissões GEE</title>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,9 +19,7 @@
     <style type="text/tailwindcss">
         @theme { --font-sans: 'Plus Jakarta Sans', sans-serif; }
     </style>
-
     <style>
-        /* Personaliza o tema emerald com as cores do Carbon Log */
         [data-theme="emerald"] {
             --color-primary: oklch(37.3% 0.148 170);
             --color-primary-content: oklch(100% 0 0);
@@ -30,11 +27,7 @@
             --color-secondary-content: oklch(100% 0 0);
         }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        #map {
-            height: 300px;
-            width: 100%;
-            border-radius: 0.75rem;
-        }
+        #map { height: 290px; width: 100%; border-radius: 0.75rem; }
     </style>
 
     {% if google_maps_api_key and google_maps_api_key != 'YOUR_API_KEY' %}
@@ -45,26 +38,21 @@
             const s = document.createElement('script');
             s.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=places,geometry&callback=initMap`;
             s.async = true; s.defer = true;
-            s.onerror = () => showMapError('Erro ao carregar o Google Maps. Verifique bloqueadores de anúncios.');
+            s.onerror = () => showMapError('Erro ao carregar o Google Maps.');
             document.head.appendChild(s);
         }
-        setTimeout(() => {
-            if (!window.GOOGLE_MAPS_LOADED && typeof google === 'undefined')
-                showMapError('Google Maps não carregou. Verifique bloqueadores de anúncios.');
-        }, 10000);
+        setTimeout(() => { if (!window.GOOGLE_MAPS_LOADED && typeof google === 'undefined') showMapError('Google Maps não carregou.'); }, 10000);
         function showMapError(msg) {
             const el = document.getElementById('map');
-            if (el) el.innerHTML = `<div class="flex items-center justify-center h-full bg-error/10 rounded-xl text-error text-sm p-6 text-center"><div><strong>⚠ ${msg}</strong><p class="text-xs text-base-content/50 mt-1">Desative o AdBlock e recarregue.</p></div></div>`;
+            if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;border-radius:12px;color:#dc2626;text-align:center;padding:24px"><strong>⚠ ${msg}</strong></div>`;
         }
-        document.readyState === 'loading'
-            ? document.addEventListener('DOMContentLoaded', loadGoogleMapsScript)
-            : loadGoogleMapsScript();
+        document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', loadGoogleMapsScript) : loadGoogleMapsScript();
     </script>
     {% else %}
     <script>
         function initMap() {
             const el = document.getElementById('map');
-            if (el) el.innerHTML = `<div class="flex items-center justify-center h-full bg-warning/10 rounded-xl text-warning text-sm p-6 text-center"><strong>⚠ API Key não configurada</strong><p class="text-xs text-base-content/50 mt-1">Configure em config.py</p></div>`;
+            if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;background:#fffbeb;border-radius:12px;color:#d97706;padding:24px"><strong>⚠ API Key não configurada — configure em config.py</strong></div>`;
         }
     </script>
     {% endif %}
@@ -72,7 +60,7 @@
 
 <body class="bg-base-200 min-h-screen">
 
-    <!-- ── Navbar ────────────────────────────────────── -->
+    <!-- Navbar -->
     <div class="navbar bg-base-100 border-b border-base-300 shadow-sm sticky top-0 z-50">
         <div class="max-w-2xl mx-auto w-full px-4 flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl shadow-sm">🌿</div>
@@ -81,7 +69,6 @@
         </div>
     </div>
 
-    <!-- ── Main ──────────────────────────────────────── -->
     <main class="max-w-xl mx-auto px-4 py-10">
 
         <!-- Hero -->
@@ -89,35 +76,41 @@
             <div class="badge badge-ghost gap-1 py-3 px-4 mb-3 text-xs font-semibold">🌍 Calculadora de Emissões de GEE</div>
             <h1 class="text-3xl font-extrabold tracking-tight mb-3 leading-tight">Quanto CO₂ sua viagem emitiu?</h1>
             <p class="text-base-content/55 text-sm max-w-xs mx-auto leading-relaxed">
-                Cálculo baseado no <strong class="text-base-content/75">GHG Protocol Brasil</strong> com fator de ajuste por idade do veículo.
+                Cálculo baseado no <strong class="text-base-content/75">GHG Protocol Brasil</strong>.
             </p>
         </div>
 
-        <!-- ── Formulário com Alpine.js ──────────────── -->
+        <!-- Formulário -->
         <div class="card bg-base-100 shadow border border-base-300 overflow-hidden"
              x-data="{
                 vehicle: 'carro',
                 mode: 'estimado',
+                fuel: 'Diesel S10',
                 get showCargo() { return this.vehicle === 'caminhao'; },
-                get litersDisabled() { return this.mode === 'estimado'; }
+                get kmLDefault() {
+                    const d = {
+                        carro:   { 'Diesel S10': 14, Gasolina: 12, Etanol: 8  },
+                        caminhao:{ 'Diesel S10': 2.5, Gasolina: 2.0, Etanol: 1.8 }
+                    };
+                    return d[this.vehicle]?.[this.fuel] ?? 10;
+                }
              }">
             <form action="/calcular" method="post" id="formCalculo">
 
-                <!-- STEP 01 ──────────────────────────── -->
+                <!-- ── STEP 01: Veículo e contato ──────── -->
                 <div class="p-6 border-b border-base-300">
                     <div class="flex items-center gap-2 mb-5">
                         <div class="badge badge-primary badge-sm font-bold text-xs px-2">01</div>
                         <span class="text-xs font-bold uppercase tracking-widest text-primary">Veículo e contato</span>
                     </div>
 
-                    <!-- Tipo de veículo -->
                     <fieldset class="mb-5">
                         <legend class="text-sm font-semibold mb-2">Tipo de veículo</legend>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="cursor-pointer">
                                 <input type="radio" name="tipo_veiculo" value="carro" x-model="vehicle" class="sr-only" required>
                                 <div class="border-2 rounded-xl p-4 text-center transition-all duration-150 select-none"
-                                     :class="vehicle === 'carro' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
+                                     :class="vehicle==='carro' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
                                     <div class="text-3xl mb-1.5">🚗</div>
                                     <div class="font-bold text-sm">Carro</div>
                                     <div class="text-xs text-base-content/45 mt-0.5">Passeio · utilitário</div>
@@ -126,7 +119,7 @@
                             <label class="cursor-pointer">
                                 <input type="radio" name="tipo_veiculo" value="caminhao" x-model="vehicle" class="sr-only">
                                 <div class="border-2 rounded-xl p-4 text-center transition-all duration-150 select-none"
-                                     :class="vehicle === 'caminhao' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
+                                     :class="vehicle==='caminhao' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
                                     <div class="text-3xl mb-1.5">🚛</div>
                                     <div class="font-bold text-sm">Caminhão</div>
                                     <div class="text-xs text-base-content/45 mt-0.5">Carga · frota</div>
@@ -135,154 +128,169 @@
                         </div>
                     </fieldset>
 
-                    <!-- Email -->
                     <fieldset>
-                        <label class="label pb-1.5">
-                            <span class="label-text font-semibold">E-mail</span>
-                        </label>
-                        <input type="email" name="email" required placeholder="seu@email.com"
-                               class="input input-bordered w-full">
+                        <label class="label pb-1.5"><span class="label-text font-semibold">E-mail</span></label>
+                        <input type="email" name="email" required placeholder="seu@email.com" class="input input-bordered w-full">
                     </fieldset>
                 </div>
 
-                <!-- STEP 02 ──────────────────────────── -->
+                <!-- ── STEP 02: Combustível e modo ────── -->
                 <div class="p-6 border-b border-base-300">
                     <div class="flex items-center gap-2 mb-5">
                         <div class="badge badge-primary badge-sm font-bold text-xs px-2">02</div>
-                        <span class="text-xs font-bold uppercase tracking-widest text-primary">Combustível e consumo</span>
+                        <span class="text-xs font-bold uppercase tracking-widest text-primary">Combustível e modo</span>
                     </div>
 
-                    <!-- Combustível -->
-                    <fieldset class="mb-4">
-                        <label class="label pb-1.5">
-                            <span class="label-text font-semibold">Tipo de combustível</span>
-                        </label>
-                        <select name="tipo_combustivel" required class="select select-bordered w-full">
-                            <option value="Diesel S10">⛽ Diesel S10</option>
-                            <option value="Gasolina">⛽ Gasolina</option>
-                            <option value="Etanol">🌾 Etanol</option>
+                    <fieldset class="mb-5">
+                        <label class="label pb-1.5"><span class="label-text font-semibold">Tipo de combustível</span></label>
+                        <select name="tipo_combustivel" required x-model="fuel" class="select select-bordered w-full">
+                            <option value="Diesel S10">Diesel S10</option>
+                            <option value="Gasolina">Gasolina</option>
+                            <option value="Etanol">Etanol</option>
                         </select>
                     </fieldset>
 
-                    <!-- Modo de cálculo -->
-                    <fieldset class="mb-4">
+                    <fieldset>
                         <legend class="text-sm font-semibold mb-2">Modo de cálculo</legend>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="cursor-pointer">
                                 <input type="radio" name="modo_calculo" value="estimado" x-model="mode" class="sr-only" checked>
-                                <div class="border-2 rounded-xl p-3 flex gap-3 items-center transition-all duration-150 select-none"
-                                     :class="mode === 'estimado' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
-                                    <span class="text-xl leading-none font-bold text-base-content/60">≈</span>
-                                    <div>
-                                        <div class="font-bold text-sm">Estimado</div>
-                                        <div class="text-xs text-base-content/45">A partir dos km</div>
+                                <div class="border-2 rounded-xl p-3.5 transition-all duration-150 select-none"
+                                     :class="mode==='estimado' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
+                                    <div class="font-bold text-sm mb-0.5">≈ Estimado</div>
+                                    <div class="text-xs text-base-content/50 leading-snug">
+                                        Informe km rodados<br>e o consumo (km/L)
                                     </div>
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="modo_calculo" value="preciso" x-model="mode" class="sr-only">
-                                <div class="border-2 rounded-xl p-3 flex gap-3 items-center transition-all duration-150 select-none"
-                                     :class="mode === 'preciso' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
-                                    <span class="text-lg leading-none">🔬</span>
-                                    <div>
-                                        <div class="font-bold text-sm">Preciso</div>
-                                        <div class="text-xs text-base-content/45">Litros reais</div>
+                                <div class="border-2 rounded-xl p-3.5 transition-all duration-150 select-none"
+                                     :class="mode==='preciso' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
+                                    <div class="font-bold text-sm mb-0.5">🔬 Preciso</div>
+                                    <div class="text-xs text-base-content/50 leading-snug">
+                                        Informe os litros<br>reais consumidos
                                     </div>
                                 </div>
                             </label>
                         </div>
                     </fieldset>
-
-                    <!-- Litros -->
-                    <fieldset class="mb-4">
-                        <label class="label pb-1.5">
-                            <span class="label-text font-semibold" data-label-litros
-                                  x-text="litersDisabled ? 'Litros de combustível (estimado)' : 'Litros de combustível'"></span>
-                        </label>
-                        <input type="number" name="litros" step="0.01" min="0"
-                               :required="!litersDisabled"
-                               :disabled="litersDisabled"
-                               :placeholder="litersDisabled ? 'Será estimado a partir dos km rodados' : 'Ex: 500,5'"
-                               class="input input-bordered w-full transition-all">
-                        <label class="label pt-1">
-                            <span class="label-text-alt text-base-content/45">No modo estimado, calculado automaticamente dos km rodados.</span>
-                        </label>
-                    </fieldset>
-
-                    <!-- Ano de fabricação -->
-                    <fieldset>
-                        <label class="label pb-1.5">
-                            <span class="label-text font-semibold">Ano de fabricação</span>
-                            <span class="label-text-alt text-base-content/45">Fator de ajuste por idade</span>
-                        </label>
-                        <select name="ano_fabricacao" required class="select select-bordered w-full">
-                            {% for ano in range(ano_atual, 1989, -1) %}
-                            <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
-                            {% endfor %}
-                        </select>
-                    </fieldset>
                 </div>
 
-                <!-- STEP 03 ──────────────────────────── -->
+                <!-- ── STEP 03: Conteúdo condicional ──── -->
                 <div class="p-6 border-b border-base-300">
                     <div class="flex items-center gap-2 mb-5">
                         <div class="badge badge-primary badge-sm font-bold text-xs px-2">03</div>
-                        <span class="text-xs font-bold uppercase tracking-widest text-primary">Rota</span>
-                        <div class="badge badge-ghost badge-sm text-xs">Opcional</div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-primary"
+                              x-text="mode === 'estimado' ? 'Rota e consumo' : 'Combustível consumido'"></span>
                     </div>
 
-                    <!-- Endereços -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                        <fieldset>
-                            <label class="label pb-1"><span class="label-text text-sm font-semibold">Origem</span></label>
-                            <input type="text" id="endereco_origem" name="endereco_origem"
-                                   placeholder="Endereço de partida"
-                                   class="input input-bordered input-sm w-full">
-                            <input type="hidden" id="lat_origem" name="lat_origem">
-                            <input type="hidden" id="lng_origem" name="lng_origem">
+                    <!-- ESTIMADO: mapa + km + km/L ──── -->
+                    <div x-show="mode === 'estimado'" x-transition>
+
+                        <!-- Endereços -->
+                        <fieldset class="mb-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                                <div>
+                                    <label class="label pb-1"><span class="label-text text-sm font-semibold">Origem <span class="text-base-content/40 font-normal">(opcional)</span></span></label>
+                                    <input type="text" id="endereco_origem" name="endereco_origem"
+                                           placeholder="Endereço de partida"
+                                           class="input input-bordered input-sm w-full">
+                                    <input type="hidden" id="lat_origem" name="lat_origem">
+                                    <input type="hidden" id="lng_origem" name="lng_origem">
+                                </div>
+                                <div>
+                                    <label class="label pb-1"><span class="label-text text-sm font-semibold">Destino <span class="text-base-content/40 font-normal">(opcional)</span></span></label>
+                                    <input type="text" id="endereco_destino" name="endereco_destino"
+                                           placeholder="Endereço de chegada"
+                                           class="input input-bordered input-sm w-full">
+                                    <input type="hidden" id="lat_destino" name="lat_destino">
+                                    <input type="hidden" id="lng_destino" name="lng_destino">
+                                </div>
+                            </div>
+                            <button type="button" id="btn_calcular_distancia"
+                                    class="btn btn-ghost btn-sm border border-base-300">
+                                📏 Calcular distância pela rota
+                            </button>
+                            <div id="distance_result" class="hidden alert alert-success py-2 px-3 text-sm mt-2"></div>
                         </fieldset>
-                        <fieldset>
-                            <label class="label pb-1"><span class="label-text text-sm font-semibold">Destino</span></label>
-                            <input type="text" id="endereco_destino" name="endereco_destino"
-                                   placeholder="Endereço de chegada"
-                                   class="input input-bordered input-sm w-full">
-                            <input type="hidden" id="lat_destino" name="lat_destino">
-                            <input type="hidden" id="lng_destino" name="lng_destino">
+
+                        <div id="map" class="border border-base-300 shadow-sm mb-4"></div>
+
+                        <!-- km rodados -->
+                        <fieldset class="mb-4">
+                            <label class="label pb-1.5">
+                                <span class="label-text font-semibold">Quilômetros rodados</span>
+                                <span class="label-text-alt text-base-content/45">Do mapa ou manual</span>
+                            </label>
+                            <input type="number" name="km_rodado" id="km_rodado" step="0.01" min="0"
+                                   required placeholder="Ex: 2100" class="input input-bordered w-full">
                         </fieldset>
+
+                        <!-- km/L -->
+                        <fieldset class="mb-4">
+                            <label class="label pb-1.5">
+                                <span class="label-text font-semibold">Consumo do veículo (km/L)</span>
+                                <span class="label-text-alt text-base-content/45"
+                                      x-text="'Típico: ' + kmLDefault + ' km/L'"></span>
+                            </label>
+                            <input type="number" name="km_por_litro" step="0.1" min="0.1" required
+                                   :placeholder="'Ex: ' + kmLDefault"
+                                   class="input input-bordered w-full">
+                            <label class="label pt-1">
+                                <span class="label-text-alt text-base-content/40">Litros = km ÷ km/L</span>
+                            </label>
+                        </fieldset>
+
+                        <!-- Carga (caminhão) -->
+                        <fieldset x-show="showCargo" x-transition>
+                            <label class="label pb-1.5">
+                                <span class="label-text font-semibold">Carga transportada (toneladas)</span>
+                                <span class="label-text-alt text-base-content/45">Intensidade por tonelada</span>
+                            </label>
+                            <input type="number" name="carga_ton" id="carga_ton_est"
+                                   step="0.01" min="0" placeholder="Ex: 25"
+                                   class="input input-bordered w-full"
+                                   :required="showCargo">
+                        </fieldset>
+                        <input type="hidden" name="carga_ton" value="0" x-show="!showCargo">
                     </div>
 
-                    <button type="button" id="btn_calcular_distancia"
-                            class="btn btn-ghost btn-sm border border-base-300 mb-2">
-                        📏 Calcular distância pela rota
-                    </button>
+                    <!-- PRECISO: só litros ─────────────── -->
+                    <div x-show="mode === 'preciso'" x-transition>
 
-                    <div id="distance_result" class="hidden alert alert-success py-2 px-3 text-sm mb-3"></div>
+                        <fieldset class="mb-4">
+                            <label class="label pb-1.5">
+                                <span class="label-text font-semibold">Litros de combustível consumidos</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" name="litros" step="0.01" min="0"
+                                       :required="mode === 'preciso'"
+                                       placeholder="Ex: 500,5"
+                                       class="input input-bordered w-full pr-12">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-base-content/40 font-semibold pointer-events-none">L</span>
+                            </div>
+                            <label class="label pt-1">
+                                <span class="label-text-alt text-base-content/40">Valor exato do abastecimento ou da nota fiscal</span>
+                            </label>
+                        </fieldset>
 
-                    <div id="map" class="border border-base-300 mb-4 shadow-sm"></div>
-
-                    <fieldset class="mb-4">
-                        <label class="label pb-1.5">
-                            <span class="label-text font-semibold">Quilômetros rodados</span>
-                            <span class="label-text-alt text-base-content/45">Preenchido automaticamente pelo mapa</span>
-                        </label>
-                        <input type="number" name="km_rodado" id="km_rodado" step="0.01" min="0" required
-                               placeholder="Ex: 2100" class="input input-bordered w-full">
-                    </fieldset>
-
-                    <!-- Carga (só caminhão) -->
-                    <fieldset x-show="showCargo" x-transition>
-                        <label class="label pb-1.5">
-                            <span class="label-text font-semibold">Carga transportada (toneladas)</span>
-                            <span class="label-text-alt text-base-content/45">Intensidade por tonelada</span>
-                        </label>
-                        <input type="number" name="carga_ton" id="carga_ton" step="0.01" min="0"
-                               placeholder="Ex: 25" class="input input-bordered w-full"
-                               :required="showCargo">
-                    </fieldset>
-                    <input type="hidden" name="carga_ton" value="0" x-show="!showCargo">
+                        <!-- Carga (caminhão) -->
+                        <fieldset x-show="showCargo" x-transition>
+                            <label class="label pb-1.5">
+                                <span class="label-text font-semibold">Carga transportada (toneladas)</span>
+                                <span class="label-text-alt text-base-content/45">Intensidade por tonelada</span>
+                            </label>
+                            <input type="number" name="carga_ton" id="carga_ton_prec"
+                                   step="0.01" min="0" placeholder="Ex: 25"
+                                   class="input input-bordered w-full"
+                                   :required="showCargo">
+                        </fieldset>
+                        <input type="hidden" name="carga_ton" value="0" x-show="!showCargo">
+                    </div>
                 </div>
 
-                <!-- Submit ──────────────────────────── -->
+                <!-- Submit -->
                 <div class="p-6">
                     <button type="submit" class="btn btn-primary w-full text-base font-bold shadow-md">
                         Calcular e gerar relatório
@@ -298,13 +306,10 @@
             </form>
         </div>
 
-        <p class="text-center text-xs text-base-content/35 mt-6">
-            Carbon Log · Engenharia Ambiental · USP São Carlos
-        </p>
-
+        <p class="text-center text-xs text-base-content/35 mt-6">Carbon Log · Engenharia Ambiental · USP São Carlos</p>
     </main>
 
-    <!-- ── Google Maps JS ─────────────────────────────── -->
+    <!-- Google Maps JS -->
     <script>
         let map, origemMarker = null, destinoMarker = null;
         let origemAutocomplete, destinoAutocomplete;
@@ -315,17 +320,11 @@
             if (typeof google === 'undefined' || typeof google.maps === 'undefined') return;
             try {
                 map = new google.maps.Map(document.getElementById('map'), {
-                    center: { lat: -22.0084, lng: -47.8908 },
-                    zoom: 13,
-                    mapTypeControl: false,
-                    streetViewControl: false,
-                    fullscreenControl: false
+                    center: { lat: -22.0084, lng: -47.8908 }, zoom: 13,
+                    mapTypeControl: false, streetViewControl: false, fullscreenControl: false
                 });
-
                 if (typeof google.maps.places !== 'undefined') {
-                    origemAutocomplete = new google.maps.places.Autocomplete(
-                        document.getElementById('endereco_origem'), { types: ['geocode', 'establishment'] }
-                    );
+                    origemAutocomplete = new google.maps.places.Autocomplete(document.getElementById('endereco_origem'), { types: ['geocode', 'establishment'] });
                     origemAutocomplete.bindTo('bounds', map);
                     origemAutocomplete.addListener('place_changed', () => {
                         const p = origemAutocomplete.getPlace();
@@ -336,13 +335,9 @@
                         document.getElementById('lat_origem').value = p.geometry.location.lat();
                         document.getElementById('lng_origem').value = p.geometry.location.lng();
                         origemMarker.addListener('dragend', () => { const pos = origemMarker.getPosition(); document.getElementById('lat_origem').value = pos.lat(); document.getElementById('lng_origem').value = pos.lng(); if (window.dR) window.dR.setMap(null); calcularDistancia(); });
-                        isClickingOrigin = false;
-                        calcularDistancia();
+                        isClickingOrigin = false; calcularDistancia();
                     });
-
-                    destinoAutocomplete = new google.maps.places.Autocomplete(
-                        document.getElementById('endereco_destino'), { types: ['geocode', 'establishment'] }
-                    );
+                    destinoAutocomplete = new google.maps.places.Autocomplete(document.getElementById('endereco_destino'), { types: ['geocode', 'establishment'] });
                     destinoAutocomplete.bindTo('bounds', map);
                     destinoAutocomplete.addListener('place_changed', () => {
                         const p = destinoAutocomplete.getPlace();
@@ -353,11 +348,9 @@
                         document.getElementById('lat_destino').value = p.geometry.location.lat();
                         document.getElementById('lng_destino').value = p.geometry.location.lng();
                         destinoMarker.addListener('dragend', () => { const pos = destinoMarker.getPosition(); document.getElementById('lat_destino').value = pos.lat(); document.getElementById('lng_destino').value = pos.lng(); if (window.dR) window.dR.setMap(null); calcularDistancia(); });
-                        isClickingOrigin = true;
-                        calcularDistancia();
+                        isClickingOrigin = true; calcularDistancia();
                     });
                 }
-
                 map.addListener('click', (event) => {
                     const geocoder = new google.maps.Geocoder();
                     if (isClickingOrigin) {
@@ -365,7 +358,7 @@
                         origemMarker = new google.maps.Marker({ map, position: event.latLng, title: 'Origem', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', draggable: true });
                         document.getElementById('lat_origem').value = event.latLng.lat();
                         document.getElementById('lng_origem').value = event.latLng.lng();
-                        geocoder.geocode({ location: event.latLng }, (r, s) => { if (s === 'OK' && r[0]) document.getElementById('endereco_origem').value = r[0].formatted_address; });
+                        geocoder.geocode({ location: event.latLng }, (r, s) => { if (s==='OK' && r[0]) document.getElementById('endereco_origem').value = r[0].formatted_address; });
                         origemMarker.addListener('dragend', () => { const pos = origemMarker.getPosition(); document.getElementById('lat_origem').value = pos.lat(); document.getElementById('lng_origem').value = pos.lng(); calcularDistancia(); });
                         isClickingOrigin = false;
                     } else {
@@ -373,13 +366,13 @@
                         destinoMarker = new google.maps.Marker({ map, position: event.latLng, title: 'Destino', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', draggable: true });
                         document.getElementById('lat_destino').value = event.latLng.lat();
                         document.getElementById('lng_destino').value = event.latLng.lng();
-                        geocoder.geocode({ location: event.latLng }, (r, s) => { if (s === 'OK' && r[0]) document.getElementById('endereco_destino').value = r[0].formatted_address; });
+                        geocoder.geocode({ location: event.latLng }, (r, s) => { if (s==='OK' && r[0]) document.getElementById('endereco_destino').value = r[0].formatted_address; });
                         destinoMarker.addListener('dragend', () => { const pos = destinoMarker.getPosition(); document.getElementById('lat_destino').value = pos.lat(); document.getElementById('lng_destino').value = pos.lng(); calcularDistancia(); });
                         isClickingOrigin = true;
                     }
                     calcularDistancia();
                 });
-            } catch (e) { console.error('Erro ao inicializar mapa:', e); }
+            } catch(e) { console.error('Erro ao inicializar mapa:', e); }
         }
 
         function calcularDistancia() {
@@ -391,7 +384,6 @@
             const origem = new google.maps.LatLng(lo, go);
             const destino = new google.maps.LatLng(ld, gd);
             if (window.dR) window.dR.setMap(null);
-            if (window.rL) window.rL.setMap(null);
             const svc = new google.maps.DirectionsService();
             const renderer = new google.maps.DirectionsRenderer({ map, suppressMarkers: true, polylineOptions: { strokeColor: '#0d5c4a', strokeWeight: 4, strokeOpacity: .9 } });
             svc.route({ origin: origem, destination: destino, travelMode: google.maps.TravelMode.DRIVING, unitSystem: google.maps.UnitSystem.METRIC }, (response, status) => {
@@ -424,7 +416,7 @@
 
         window.gm_authFailure = () => {
             const el = document.getElementById('map');
-            if (el) el.innerHTML = `<div class="flex items-center justify-center h-full bg-error/10 rounded-xl text-error text-sm p-6 text-center"><strong>⚠ Erro de autenticação do Google Maps</strong></div>`;
+            if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;border-radius:12px;color:#dc2626;padding:24px"><strong>⚠ Erro de autenticação do Google Maps</strong></div>`;
         };
     </script>
 

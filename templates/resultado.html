@@ -156,28 +156,27 @@
         <!-- ── Stats grid ────────────────────────────── -->
         <div class="stats stats-vertical sm:stats-horizontal w-full shadow border border-base-300 bg-base-100 mb-4">
             <div class="stat">
-                <div class="stat-figure text-primary text-2xl">⚗️</div>
-                <div class="stat-title text-xs">Emissão base</div>
-                <div class="stat-value text-2xl font-extrabold">{{ emissao_base }}</div>
+                <div class="stat-figure text-primary text-2xl">🌿</div>
+                <div class="stat-title text-xs">Emissão total</div>
+                <div class="stat-value text-2xl font-extrabold">{{ emissao_final }}</div>
                 <div class="stat-desc font-semibold text-base-content/50">tCO₂e</div>
             </div>
-            <div class="stat">
-                <div class="stat-figure text-primary text-2xl">⏳</div>
-                <div class="stat-title text-xs">Fator de idade</div>
-                <div class="stat-value text-2xl font-extrabold">{{ fator_idade }}</div>
-                <div class="stat-desc font-semibold text-base-content/50">multiplicador</div>
-            </div>
+            {% if litros|float > 0 %}
             <div class="stat">
                 <div class="stat-figure text-primary text-2xl">⛽</div>
+                <div class="stat-title text-xs">Combustível</div>
+                <div class="stat-value text-2xl font-extrabold">{{ litros }}</div>
+                <div class="stat-desc font-semibold text-base-content/50">litros</div>
+            </div>
+            {% endif %}
+            {% if eficiencia|float > 0 %}
+            <div class="stat">
+                <div class="stat-figure text-primary text-2xl">📊</div>
                 <div class="stat-title text-xs">Eficiência</div>
                 <div class="stat-value text-2xl font-extrabold">{{ eficiencia }}</div>
                 <div class="stat-desc font-semibold text-base-content/50">km / L</div>
             </div>
-        </div>
-
-        <!-- Stats extras -->
-        {% if km_rodado|float > 0 or tipo_veiculo_raw == 'caminhao' %}
-        <div class="stats stats-vertical sm:stats-horizontal w-full shadow border border-base-300 bg-base-100 mb-4">
+            {% endif %}
             {% if km_rodado|float > 0 %}
             <div class="stat">
                 <div class="stat-figure text-secondary text-2xl">📍</div>
@@ -186,7 +185,7 @@
                 <div class="stat-desc font-semibold text-base-content/50">tCO₂e / km</div>
             </div>
             {% endif %}
-            {% if tipo_veiculo_raw == 'caminhao' %}
+            {% if tipo_veiculo_raw == 'caminhao' and carga_ton|float > 0 %}
             <div class="stat">
                 <div class="stat-figure text-secondary text-2xl">📦</div>
                 <div class="stat-title text-xs">Por tonelada</div>
@@ -195,7 +194,6 @@
             </div>
             {% endif %}
         </div>
-        {% endif %}
 
         <!-- ── Dados da viagem ───────────────────────── -->
         <div class="card bg-base-100 shadow border border-base-300 mb-4">
@@ -213,10 +211,13 @@
                                 <th class="text-base-content/60 font-semibold text-xs">Litros consumidos</th>
                                 <td class="font-medium">{{ litros }} L <span class="text-xs text-base-content/40">({{ litros_texto_origem }})</span></td>
                             </tr>
-                            <tr><th class="text-base-content/60 font-semibold text-xs">Ano de fabricação</th><td class="font-medium">{{ ano_fabricacao }}</td></tr>
-                            <tr><th class="text-base-content/60 font-semibold text-xs">Idade do veículo</th><td class="font-medium">{{ idade_veiculo }} anos</td></tr>
+                            {% if km_rodado|float > 0 %}
                             <tr><th class="text-base-content/60 font-semibold text-xs">Quilômetros rodados</th><td class="font-medium">{{ km_rodado }} km</td></tr>
-                            {% if tipo_veiculo_raw == 'caminhao' %}
+                            {% endif %}
+                            {% if km_por_litro %}
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Consumo do veículo</th><td class="font-medium">{{ km_por_litro }} km/L</td></tr>
+                            {% endif %}
+                            {% if tipo_veiculo_raw == 'caminhao' and carga_ton|float > 0 %}
                             <tr><th class="text-base-content/60 font-semibold text-xs">Carga transportada</th><td class="font-medium">{{ carga_ton }} toneladas</td></tr>
                             {% endif %}
                             {% if endereco_origem and endereco_origem != 'Não informado' %}
@@ -240,17 +241,17 @@
                 <div class="overflow-x-auto">
                     <table class="table table-sm">
                         <tbody>
-                            <tr><th class="text-base-content/60 font-semibold text-xs w-2/5">Emissão base</th><td class="font-medium">{{ emissao_base }} <span class="text-xs text-base-content/50">tCO₂e</span></td></tr>
-                            <tr><th class="text-base-content/60 font-semibold text-xs">Fator de ajuste (idade)</th><td class="font-medium">{{ fator_idade }}</td></tr>
                             <tr class="bg-primary/5">
-                                <th class="text-base-content/60 font-semibold text-xs">Emissão final</th>
+                                <th class="text-base-content/60 font-semibold text-xs w-2/5">Emissão total</th>
                                 <td class="font-extrabold text-primary">{{ emissao_final }} <span class="text-xs font-semibold">tCO₂e</span></td>
                             </tr>
                             {% if km_rodado|float > 0 %}
                             <tr><th class="text-base-content/60 font-semibold text-xs">Intensidade por km</th><td class="font-medium">{{ intensidade_km }} <span class="text-xs text-base-content/50">tCO₂e/km</span></td></tr>
                             {% endif %}
+                            {% if eficiencia|float > 0 %}
                             <tr><th class="text-base-content/60 font-semibold text-xs">Eficiência</th><td class="font-medium">{{ eficiencia }} <span class="text-xs text-base-content/50">km/L</span></td></tr>
-                            {% if tipo_veiculo_raw == 'caminhao' %}
+                            {% endif %}
+                            {% if tipo_veiculo_raw == 'caminhao' and carga_ton|float > 0 %}
                             <tr><th class="text-base-content/60 font-semibold text-xs">Intensidade por tonelada</th><td class="font-medium">{{ intensidade_ton }} <span class="text-xs text-base-content/50">tCO₂e/ton</span></td></tr>
                             {% endif %}
                         </tbody>

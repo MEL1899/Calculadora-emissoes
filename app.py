@@ -27,26 +27,6 @@ except ImportError:
 app = Flask(__name__)
 
 
-def _obter_consumo_medio_km_por_litro(tipo_veiculo: str, tipo_combustivel: str) -> float:
-    """
-    Retorna um consumo médio aproximado (km/L) por tipo de veículo e combustível.
-    Valores apenas indicativos para cálculo estimado.
-    """
-    medias = {
-        'carro': {
-            'Gasolina': 12.0,
-            'Etanol': 8.0,
-            'Diesel S10': 14.0,
-        },
-        'caminhao': {
-            'Diesel S10': 2.5,
-            'Gasolina': 2.0,
-            'Etanol': 1.8,
-        }
-    }
-    tipo = medias.get(tipo_veiculo.lower(), {})
-    valor = tipo.get(tipo_combustivel, 5.0)
-    return float(valor) if valor > 0 else 5.0
 
 
 def gerar_relatorio_pdf(dados: dict, caminho_arquivo: str) -> None:
@@ -92,11 +72,13 @@ def gerar_relatorio_pdf(dados: dict, caminho_arquivo: str) -> None:
     dados_viagem = [
         ["Tipo de veículo", dados.get("tipo_veiculo")],
         ["Combustível", dados.get("tipo_combustivel")],
+        ["Modo de cálculo", dados.get("modo_calculo_label")],
         ["Litros consumidos", f"{dados.get('litros', '')} L ({dados.get('litros_texto_origem', '')})"],
-        ["Ano de fabricação", dados.get("ano_fabricacao")],
-        ["Idade do veículo (anos)", dados.get("idade_veiculo")],
-        ["Quilômetros rodados", f"{dados.get('km_rodado', '')} km"],
     ]
+    if dados.get("km_rodado") and float(dados.get("km_rodado", 0)) > 0:
+        dados_viagem.append(["Quilômetros rodados", f"{dados.get('km_rodado', '')} km"])
+    if dados.get("km_por_litro"):
+        dados_viagem.append(["Consumo do veículo", f"{dados.get('km_por_litro', '')} km/L"])
     if dados.get("tipo_veiculo_raw") == "caminhao":
         dados_viagem.append(["Carga transportada (t)", dados.get("carga_ton")])
 
@@ -121,12 +103,12 @@ def gerar_relatorio_pdf(dados: dict, caminho_arquivo: str) -> None:
     # Resultados
     story.append(Paragraph("Resultados do cálculo", secao_titulo))
     dados_resultados = [
-        ["Emissão base (tCO2e)", dados.get("emissao_base")],
-        ["Fator de idade", dados.get("fator_idade")],
-        ["Emissão final (tCO2e)", dados.get("emissao_final")],
-        ["Emissão por km (tCO2e/km)", dados.get("intensidade_km")],
-        ["Eficiência (km/L)", dados.get("eficiencia")],
+        ["Emissão total (tCO2e)", dados.get("emissao_final")],
     ]
+    if dados.get("intensidade_km") and float(dados.get("intensidade_km", 0)) > 0:
+        dados_resultados.append(["Emissão por km (tCO2e/km)", dados.get("intensidade_km")])
+    if dados.get("eficiencia") and float(dados.get("eficiencia", 0)) > 0:
+        dados_resultados.append(["Eficiência (km/L)", dados.get("eficiencia")])
     if dados.get("tipo_veiculo_raw") == "caminhao":
         dados_resultados.append(["Intensidade por tonelada (tCO2e/ton)", dados.get("intensidade_ton")])
 
@@ -186,25 +168,28 @@ def calcular():
     try:
         # 1. Captura todos os dados do formulário
         email = request.form['email']
-        tipo_veiculo = request.form.get('tipo_veiculo', 'carro')  # Default para carro
+        tipo_veiculo = request.form.get('tipo_veiculo', 'carro')
         tipo_combustivel = request.form['tipo_combustivel']
         modo_calculo = request.form.get('modo_calculo', 'estimado')
-        ano_fabricacao = int(request.form['ano_fabricacao'])
-        km_rodado = float(request.form.get('km_rodado', 0) or 0)
-        # Campo de carga é opcional para carros (será 0 se não fornecido)
+        # Ano de fabricação não é coletado no formulário: usa ano atual → fator_idade = 1.0
+        ano_fabricacao = datetime.now().year
         carga_ton = float(request.form.get('carga_ton', 0) or 0)
 
-        # Define litros conforme o modo de cálculo
+        # Define litros e km conforme o modo de cálculo
+        km_por_litro = 0.0
         litros_estimado = False
         if modo_calculo == 'preciso':
+            # Modo preciso: usuário informa os litros diretamente; km não é coletado
             litros = float(request.form['litros'])
+            km_rodado = 0.0
         else:
-            # Estimativa de litros com base em km rodado e consumo médio
-            consumo_medio = _obter_consumo_medio_km_por_litro(tipo_veiculo, tipo_combustivel)
-            if km_rodado <= 0 or consumo_medio <= 0:
+            # Modo estimado: usuário informa km rodados e consumo do veículo (km/L)
+            km_rodado = float(request.form.get('km_rodado', 0) or 0)
+            km_por_litro = float(request.form.get('km_por_litro', 0) or 0)
+            if km_rodado <= 0 or km_por_litro <= 0:
                 litros = 0.0
             else:
-                litros = km_rodado / consumo_medio
+                litros = km_rodado / km_por_litro
             litros_estimado = True
         
         # Dados de localização (opcionais)
@@ -242,12 +227,13 @@ def calcular():
         
         # 4. Extrai os resultados para exibição
         resultado = dados_final.iloc[0]  # Primeira (e única) linha
-        ano_atual = datetime.now().year
-        idade_veiculo = ano_atual - ano_fabricacao
         tipo_veiculo_label = 'Caminhão' if tipo_veiculo == 'caminhao' else 'Carro'
         modo_calculo_label = 'Modo preciso' if modo_calculo == 'preciso' else 'Modo estimado'
-        modo_calculo_selo = 'Alta precisão' if modo_calculo == 'preciso' else 'Resultado estimado (consumo médio)'
-        litros_texto_origem = 'informados pelo usuário' if not litros_estimado else 'estimados a partir dos km rodados'
+        modo_calculo_selo = 'Alta precisão' if modo_calculo == 'preciso' else 'Resultado estimado'
+        if litros_estimado:
+            litros_texto_origem = f'estimados ({km_por_litro:.1f} km/L · {km_rodado:.0f} km)'
+        else:
+            litros_texto_origem = 'informados pelo usuário'
 
         # Comparação com média de intensidade do setor (valor fixo simulado)
         media_setor_intensidade_km = 0.0008  # tCO2e/km (valor de referência fixo)
@@ -284,8 +270,7 @@ def calcular():
             'tipo_veiculo_raw': tipo_veiculo,
             'tipo_combustivel': tipo_combustivel,
             'litros': f"{litros:.2f}",
-            'ano_fabricacao': ano_fabricacao,
-            'idade_veiculo': idade_veiculo,
+            'km_por_litro': f"{km_por_litro:.1f}" if km_por_litro > 0 else '',
             'km_rodado': f"{km_rodado:.2f}",
             'carga_ton': f"{carga_ton:.2f}",
             'endereco_origem': endereco_origem if endereco_origem else 'Não informado',
