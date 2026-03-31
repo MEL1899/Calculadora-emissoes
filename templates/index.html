@@ -3,741 +3,775 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Carbono - Carbon Log</title>
+    <title>Carbon Log — Calculadora de Emissões GEE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --cor-primaria: #0d5c4a;
-            --cor-primaria-hover: #0a4a3b;
-            --cor-secundaria: #1a7a63;
-            --cor-fundo: #f0f7f5;
-            --cor-fundo-card: #ffffff;
-            --cor-texto: #1a2e28;
-            --cor-texto-suave: #5a6d67;
-            --cor-borda: #d4e5e1;
-            --sombra: 0 4px 20px rgba(13, 92, 74, 0.08);
-            --sombra-foco: 0 0 0 3px rgba(13, 92, 74, 0.2);
-            --raio: 12px;
+            --g900: #0a4a3b;
+            --g800: #0d5c4a;
+            --g700: #127a62;
+            --g600: #16856b;
+            --g400: #2ab090;
+            --g100: #c8ece4;
+            --g50:  #e8f5f1;
+            --bg:   #f2f7f5;
+            --card: #ffffff;
+            --txt:  #111827;
+            --muted:#6b7280;
+            --border:#dde8e5;
+            --radius:14px;
+            --rsm:  8px;
+            --shadow: 0 2px 12px rgba(10,74,59,.07);
+            --shadow-lg: 0 6px 28px rgba(10,74,59,.11);
         }
-        * { box-sizing: border-box; }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 40px 24px 60px;
+            background: var(--bg);
+            color: var(--txt);
             line-height: 1.6;
-            background: var(--cor-fundo);
-            color: var(--cor-texto);
+            min-height: 100vh;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 36px;
+
+        /* ── Topbar ────────────────────────────────── */
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            height: 58px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            gap: 10px;
         }
-        .header h1 {
-            font-size: 1.75rem;
+        .logo-pill {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, var(--g900), var(--g600));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+        .logo-name {
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--txt);
+            letter-spacing: -.02em;
+        }
+        .logo-tag {
+            font-size: .62rem;
             font-weight: 700;
-            color: var(--cor-texto);
-            margin: 0 0 6px 0;
-            letter-spacing: -0.02em;
-        }
-        .header .marca {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--cor-primaria);
-            letter-spacing: 0.04em;
-        }
-        .formulario {
-            background: var(--cor-fundo-card);
-            padding: 32px;
-            border-radius: var(--raio);
-            box-shadow: var(--sombra);
-            border: 1px solid var(--cor-borda);
-        }
-        .form-section {
-            margin-bottom: 28px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--cor-borda);
-        }
-        .form-section:last-of-type { border-bottom: none; }
-        .form-section-title {
-            font-size: 0.75rem;
-            font-weight: 600;
+            color: var(--g700);
+            background: var(--g50);
+            border: 1px solid var(--g100);
+            padding: 2px 8px;
+            border-radius: 99px;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--cor-primaria);
+            letter-spacing: .04em;
+        }
+
+        /* ── Main layout ───────────────────────────── */
+        .main {
+            max-width: 660px;
+            margin: 0 auto;
+            padding: 44px 20px 80px;
+        }
+
+        /* ── Hero ──────────────────────────────────── */
+        .hero {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .hero h1 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            letter-spacing: -.03em;
+            line-height: 1.18;
+            color: var(--txt);
+            margin-bottom: 10px;
+        }
+        .hero p {
+            font-size: .88rem;
+            color: var(--muted);
+            max-width: 460px;
+            margin: 0 auto;
+            line-height: 1.65;
+        }
+        .ghg-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--g50);
+            border: 1px solid var(--g100);
+            color: var(--g800);
+            font-size: .72rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 99px;
             margin-bottom: 14px;
+            letter-spacing: .03em;
+            text-transform: uppercase;
         }
-        .form-group {
-            margin-bottom: 18px;
+
+        /* ── Form card ─────────────────────────────── */
+        .form-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
         }
-        .form-group:last-child { margin-bottom: 0; }
-        label {
-            display: block;
-            margin-bottom: 6px;
+
+        /* ── Steps ─────────────────────────────────── */
+        .step {
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--border);
+        }
+        .step:last-of-type { border-bottom: none; }
+
+        .step-head {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 22px;
+        }
+        .step-num {
+            width: 26px; height: 26px;
+            border-radius: 7px;
+            background: var(--g50);
+            border: 1px solid var(--g100);
+            font-size: .68rem;
+            font-weight: 800;
+            color: var(--g900);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .step-label {
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--g800);
+        }
+        .opt-badge {
+            display: inline-block;
+            font-size: .62rem;
             font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--cor-texto);
+            color: var(--muted);
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            padding: 1px 7px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-left: 6px;
+            vertical-align: middle;
         }
+
+        /* ── Form groups ───────────────────────────── */
+        .fg { margin-bottom: 20px; }
+        .fg:last-child { margin-bottom: 0; }
+
+        .fg > label, label.lbl {
+            display: block;
+            margin-bottom: 7px;
+            font-size: .84rem;
+            font-weight: 600;
+            color: var(--txt);
+        }
+        .hint {
+            font-size: .75rem;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
         input[type="email"],
         input[type="number"],
         input[type="text"],
         select {
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--cor-borda);
-            border-radius: 8px;
-            font-size: 0.95rem;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--rsm);
+            font-size: .88rem;
             font-family: inherit;
             background: #fff;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--txt);
+            transition: border-color .15s, box-shadow .15s;
+            appearance: none;
         }
-        input:focus,
-        select:focus {
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 13px center;
+            padding-right: 34px;
+        }
+        input:focus, select:focus {
             outline: none;
-            border-color: var(--cor-primaria);
-            box-shadow: var(--sombra-foco);
+            border-color: var(--g700);
+            box-shadow: 0 0 0 3px rgba(13,92,74,.12);
         }
-        input::placeholder { color: #9ab5ae; }
-        .info-text {
-            font-size: 0.8rem;
-            color: var(--cor-texto-suave);
-            margin-top: 6px;
+        input::placeholder { color: #b8cdc8; }
+        input:disabled {
+            background: var(--bg);
+            color: var(--muted);
+            cursor: not-allowed;
         }
-        .radio-group {
-            display: flex;
-            gap: 16px;
-            margin-top: 8px;
-        }
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            border: 1px solid var(--cor-borda);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .radio-option:hover { background: var(--cor-fundo); }
-        .radio-option input[type="radio"] { width: auto; cursor: pointer; accent-color: var(--cor-primaria); }
-        .radio-option label { margin-bottom: 0; font-weight: 500; cursor: pointer; }
-        .radio-option input:checked + label { color: var(--cor-primaria); }
-        .radio-option:has(input:checked) {
-            border-color: var(--cor-primaria);
-            background: rgba(13, 92, 74, 0.06);
-        }
-        .hidden { display: none !important; }
-        .address-group {
+
+        /* ── Radio cards (vehicle type) ────────────── */
+        .radio-grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 12px;
+            gap: 10px;
         }
-        @media (max-width: 600px) { .address-group { grid-template-columns: 1fr; } }
-        .address-group label { font-size: 0.85rem; }
-        .map-container { margin: 24px 0; }
-        #map {
-            height: 360px;
-            width: 100%;
-            border-radius: var(--raio);
-            border: 1px solid var(--cor-borda);
-            overflow: hidden;
+        .rcard { position: relative; }
+        .rcard input[type="radio"] {
+            position: absolute; opacity: 0; width: 0; height: 0;
         }
-        .btn-calculate-distance {
-            background: var(--cor-secundaria);
-            color: white;
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
+        .rcard > label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 18px 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--rsm);
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
+            transition: all .15s;
+            text-align: center;
+            margin-bottom: 0;
+            user-select: none;
+        }
+        .rcard > label .rc-icon { font-size: 1.8rem; line-height: 1; }
+        .rcard > label .rc-name { font-size: .85rem; font-weight: 700; color: var(--txt); }
+        .rcard > label .rc-sub  { font-size: .7rem; color: var(--muted); font-weight: 400; }
+        .rcard > label:hover { border-color: var(--g400); background: var(--g50); }
+        .rcard input:checked + label {
+            border-color: var(--g800);
+            background: var(--g50);
+            box-shadow: inset 0 0 0 1px var(--g800);
+        }
+        .rcard input:checked + label .rc-name { color: var(--g800); }
+
+        /* ── Mode selector ─────────────────────────── */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .mcard { position: relative; }
+        .mcard input[type="radio"] {
+            position: absolute; opacity: 0; width: 0; height: 0;
+        }
+        .mcard > label {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            padding: 13px 15px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--rsm);
+            cursor: pointer;
+            transition: all .15s;
+            margin-bottom: 0;
+            user-select: none;
+        }
+        .mcard > label .mc-icon { font-size: 1.15rem; line-height: 1.4; flex-shrink: 0; }
+        .mcard > label .mc-txt  { display: flex; flex-direction: column; gap: 2px; }
+        .mcard > label .mc-name { font-size: .84rem; font-weight: 700; color: var(--txt); }
+        .mcard > label .mc-desc { font-size: .7rem; color: var(--muted); }
+        .mcard > label:hover { border-color: var(--g400); background: var(--g50); }
+        .mcard input:checked + label {
+            border-color: var(--g800);
+            background: var(--g50);
+            box-shadow: inset 0 0 0 1px var(--g800);
+        }
+        .mcard input:checked + label .mc-name { color: var(--g800); }
+
+        /* ── Map / Address ─────────────────────────── */
+        .addr-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 13px;
+        }
+        .addr-row label { font-size: .78rem; font-weight: 600; }
+
+        #map {
+            height: 310px;
+            border-radius: var(--rsm);
+            border: 1.5px solid var(--border);
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .btn-dist {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--g50);
+            color: var(--g900);
+            border: 1.5px solid var(--g100);
+            padding: 9px 15px;
+            border-radius: var(--rsm);
+            cursor: pointer;
+            font-size: .82rem;
+            font-weight: 700;
             font-family: inherit;
-            margin-top: 10px;
-            transition: background 0.2s;
+            transition: all .15s;
         }
-        .btn-calculate-distance:hover { background: var(--cor-primaria); }
-        .distance-result {
+        .btn-dist:hover { background: var(--g100); border-color: var(--g400); }
+
+        .dist-result {
+            display: none;
             margin-top: 10px;
-            padding: 12px 14px;
-            background: rgba(13, 92, 74, 0.08);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: var(--cor-texto);
+            padding: 10px 14px;
+            background: var(--g50);
+            border: 1px solid var(--g100);
+            border-radius: var(--rsm);
+            font-size: .82rem;
+            color: var(--g900);
         }
+
+        .hidden { display: none !important; }
+
+        /* ── Submit area ───────────────────────────── */
+        .form-foot {
+            padding: 24px 32px;
+        }
+
         .btn-submit {
             width: 100%;
-            padding: 16px;
-            cursor: pointer;
-            background: var(--cor-primaria);
-            color: white;
+            padding: 15px 24px;
+            background: linear-gradient(135deg, var(--g900) 0%, var(--g700) 100%);
+            color: #fff;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: var(--rsm);
+            font-size: .95rem;
+            font-weight: 700;
             font-family: inherit;
-            margin-top: 8px;
-            transition: background 0.2s, transform 0.1s;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: -.01em;
         }
-        .btn-submit:hover { background: var(--cor-primaria-hover); }
-        .btn-submit:active { transform: scale(0.99); }
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(10,74,59,.28);
+        }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-arrow {
+            font-size: 1.1rem;
+            transition: transform .2s;
+        }
+        .btn-submit:hover .btn-arrow { transform: translateX(3px); }
+
+        .foot-note {
+            text-align: center;
+            font-size: .73rem;
+            color: var(--muted);
+            margin-top: 12px;
+        }
+
+        /* ── Responsive ────────────────────────────── */
+        @media (max-width: 540px) {
+            .step { padding: 22px 20px; }
+            .form-foot { padding: 20px 20px; }
+            .radio-grid-2, .mode-grid, .addr-row { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 1.5rem; }
+        }
+
+        .page-foot {
+            text-align: center;
+            font-size: .73rem;
+            color: var(--muted);
+            margin-top: 28px;
+        }
     </style>
-    <!-- Google Maps API - Carregamento Direto -->
+
     {% if google_maps_api_key and google_maps_api_key != 'YOUR_API_KEY' %}
     <script>
-        // Variável global para controle
         window.GOOGLE_MAPS_LOADED = false;
         window.GOOGLE_MAPS_API_KEY = '{{ google_maps_api_key }}';
-        
-        // Carrega o Google Maps com tratamento de erros
         function loadGoogleMapsScript() {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=places,geometry&callback=initMap`;
-            script.async = true;
-            script.defer = true;
-            
-            script.onerror = function() {
-                showMapError('Erro ao carregar o script do Google Maps. Verifique se bloqueadores de anuncios estao desativados.');
-            };
-            
-            script.onload = function() {
-                console.log('Script do Google Maps carregado com sucesso');
-            };
-            
-            document.head.appendChild(script);
+            const s = document.createElement('script');
+            s.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=places,geometry&callback=initMap`;
+            s.async = true; s.defer = true;
+            s.onerror = () => showMapError('Erro ao carregar o Google Maps. Verifique bloqueadores de anúncios.');
+            document.head.appendChild(s);
         }
-        
-        // Timeout para detectar se não carregou
-        setTimeout(function() {
-            if (!window.GOOGLE_MAPS_LOADED && typeof google === 'undefined') {
-                showMapError('Google Maps nao carregou. Verifique bloqueadores de anuncios ou restricoes de referenciador.');
-            }
+        setTimeout(() => {
+            if (!window.GOOGLE_MAPS_LOADED && typeof google === 'undefined')
+                showMapError('Google Maps não carregou. Verifique bloqueadores de anúncios.');
         }, 10000);
-        
-        // Função para mostrar erro
-        function showMapError(message) {
-            const mapContainer = document.getElementById('map');
-            if (mapContainer) {
-                mapContainer.innerHTML = '<div style="padding: 50px; text-align: center; color: #e74c3c; background: #ffe6e6; border-radius: 8px;"><h3>Erro: Google Maps nao carregou</h3><p><strong>' + message + '</strong></p><p style="margin-top: 15px; font-size: 14px;"><strong>SOLUCOES:</strong></p><ol style="text-align: left; display: inline-block; max-width: 650px; font-size: 13px; line-height: 1.8;"><li><strong>Desative bloqueadores de anuncios</strong> (AdBlock, uBlock, etc.)</li><li>Acesse: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color: #3498db;">Google Cloud Console</a></li><li>Em "Restricoes de aplicativo", escolha "Nenhuma"</li><li>Salve e aguarde 30 segundos</li><li>Recarregue: <strong>Ctrl+F5</strong></li></ol><p style="margin-top: 20px; font-size: 12px; color: #7f8c8d;">Subir o site para a internet (com dominio proprio) pode resolver problemas de restricoes.</p></div>';
-            }
+        function showMapError(msg) {
+            const el = document.getElementById('map');
+            if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:32px;background:#fef2f2;border-radius:8px;color:#dc2626;text-align:center"><strong>⚠ ${msg}</strong><p style="font-size:12px;color:#9ca3af">Desative o AdBlock e recarregue a página.</p></div>`;
         }
-        
-        // Carrega o script quando a página estiver pronta
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadGoogleMapsScript);
-        } else {
-            loadGoogleMapsScript();
-        }
+        document.readyState === 'loading'
+            ? document.addEventListener('DOMContentLoaded', loadGoogleMapsScript)
+            : loadGoogleMapsScript();
     </script>
     {% else %}
     <script>
-        // API key não configurada
         function initMap() {
-            const mapContainer = document.getElementById('map');
-            if (mapContainer) {
-                mapContainer.innerHTML = '<div style="padding: 50px; text-align: center; color: #e74c3c; background: #ffe6e6; border-radius: 8px;"><h3>⚠️ API Key não configurada</h3><p>Configure sua API key no arquivo <code>config.py</code></p><p style="font-size: 12px; margin-top: 10px;">Veja as instruções em <code>COMO_OBTER_API_KEY_GOOGLE_MAPS.md</code></p></div>';
-            }
+            const el = document.getElementById('map');
+            if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:32px;background:#fffbeb;border-radius:8px;color:#d97706;text-align:center"><strong>⚠ API Key não configurada</strong><p style="font-size:12px;color:#9ca3af">Configure em config.py</p></div>`;
         }
     </script>
     {% endif %}
 </head>
 <body>
-    <header class="header">
-        <h1>🌱 Cálculo de Emissões GEE</h1>
-        <p class="marca">Carbon Log</p>
-    </header>
 
-    <div class="formulario">
+<nav class="topbar">
+    <div class="logo-pill">🌿</div>
+    <span class="logo-name">Carbon Log</span>
+    <span class="logo-tag">GHG Protocol</span>
+</nav>
+
+<main class="main">
+
+    <div class="hero">
+        <div class="ghg-badge">🌍 Cálculo de Emissões GEE</div>
+        <h1>Quanto CO₂ sua viagem emitiu?</h1>
+        <p>Calcule as emissões de gases de efeito estufa com base no GHG Protocol Brasil. Gera relatório PDF auditável em segundos.</p>
+    </div>
+
+    <div class="form-card">
         <form action="/calcular" method="post" id="formCalculo">
-            <div class="form-section">
-                <div class="form-section-title">Veículo e contato</div>
-            <div class="form-group">
-                <label>Tipo de veículo</label>
-                <div class="radio-group">
-                    <div class="radio-option">
-                        <input type="radio" id="tipo_carro" name="tipo_veiculo" value="carro" required checked>
-                        <label for="tipo_carro">🚗 Carro</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="tipo_caminhao" name="tipo_veiculo" value="caminhao" required>
-                        <label for="tipo_caminhao">🚛 Caminhão</label>
+
+            <!-- 01: Veículo e contato -->
+            <div class="step">
+                <div class="step-head">
+                    <div class="step-num">01</div>
+                    <div class="step-label">Veículo e contato</div>
+                </div>
+
+                <div class="fg">
+                    <label class="lbl">Tipo de veículo</label>
+                    <div class="radio-grid-2">
+                        <div class="rcard">
+                            <input type="radio" id="tipo_carro" name="tipo_veiculo" value="carro" required checked>
+                            <label for="tipo_carro">
+                                <span class="rc-icon">🚗</span>
+                                <span class="rc-name">Carro</span>
+                                <span class="rc-sub">Passeio · utilitário</span>
+                            </label>
+                        </div>
+                        <div class="rcard">
+                            <input type="radio" id="tipo_caminhao" name="tipo_veiculo" value="caminhao" required>
+                            <label for="tipo_caminhao">
+                                <span class="rc-icon">🚛</span>
+                                <span class="rc-name">Caminhão</span>
+                                <span class="rc-sub">Carga · frota</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label>E-mail</label>
-                <input type="email" name="email" required placeholder="seu@email.com">
-            </div>
+
+                <div class="fg">
+                    <label for="email" class="lbl">E-mail</label>
+                    <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                </div>
             </div>
 
-            <div class="form-section">
-                <div class="form-section-title">Combustível e consumo</div>
-            <div class="form-group">
-                <label>Tipo de combustível</label>
-                <select name="tipo_combustivel" required>
-                    <option value="Diesel S10">Diesel S10</option>
-                    <option value="Gasolina">Gasolina</option>
-                    <option value="Etanol">Etanol</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Modo de cálculo</label>
-                <div class="radio-group">
-                    <div class="radio-option">
-                        <input type="radio" id="modo_estimado" name="modo_calculo" value="estimado" checked>
-                        <label for="modo_estimado">Estimado (com base em km)</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="modo_preciso" name="modo_calculo" value="preciso">
-                        <label for="modo_preciso">Preciso (litros reais)</label>
+            <!-- 02: Combustível e consumo -->
+            <div class="step">
+                <div class="step-head">
+                    <div class="step-num">02</div>
+                    <div class="step-label">Combustível e consumo</div>
+                </div>
+
+                <div class="fg">
+                    <label for="tipo_combustivel" class="lbl">Tipo de combustível</label>
+                    <select name="tipo_combustivel" id="tipo_combustivel" required>
+                        <option value="Diesel S10">Diesel S10</option>
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Etanol">Etanol</option>
+                    </select>
+                </div>
+
+                <div class="fg">
+                    <label class="lbl">Modo de cálculo</label>
+                    <div class="mode-grid">
+                        <div class="mcard">
+                            <input type="radio" id="modo_estimado" name="modo_calculo" value="estimado" checked>
+                            <label for="modo_estimado">
+                                <span class="mc-icon">≈</span>
+                                <div class="mc-txt">
+                                    <span class="mc-name">Estimado</span>
+                                    <span class="mc-desc">A partir dos km rodados</span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="mcard">
+                            <input type="radio" id="modo_preciso" name="modo_calculo" value="preciso">
+                            <label for="modo_preciso">
+                                <span class="mc-icon">🔬</span>
+                                <div class="mc-txt">
+                                    <span class="mc-name">Preciso</span>
+                                    <span class="mc-desc">Litros reais consumidos</span>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <span class="info-text">Informe os litros consumidos ou deixe o sistema estimar a partir dos quilômetros rodados.</span>
-            </div>
-            <div class="form-group">
-                <label data-label-litros>Litros de combustível</label>
-                <input type="number" name="litros" step="0.01" min="0" required placeholder="Ex: 500,5">
-            </div>
-            <div class="form-group">
-                <label>Ano de fabricação do veículo</label>
-                <select name="ano_fabricacao" required>
-                    {% for ano in range(ano_atual, 1989, -1) %}
-                    <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
-                    {% endfor %}
-                </select>
-                <span class="info-text">Usado no fator de ajuste por idade do veículo</span>
-            </div>
+
+                <div class="fg">
+                    <label data-label-litros class="lbl">Litros de combustível</label>
+                    <input type="number" name="litros" step="0.01" min="0" required placeholder="Ex: 500,5">
+                    <p class="hint">No modo estimado o campo é calculado automaticamente com base nos km rodados.</p>
+                </div>
+
+                <div class="fg">
+                    <label for="ano_fabricacao" class="lbl">Ano de fabricação</label>
+                    <select name="ano_fabricacao" id="ano_fabricacao" required>
+                        {% for ano in range(ano_atual, 1989, -1) %}
+                        <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="hint">Usado para calcular o fator de ajuste por idade do veículo (GHG Protocol Brasil).</p>
+                </div>
             </div>
 
-            <div class="form-section">
-                <div class="form-section-title">📍 Rota (opcional)</div>
-            <div class="form-group">
-                <label>Origem e destino — calcule a distância no mapa</label>
-                <div class="address-group">
-                    <div>
-                        <label style="font-size: 13px; font-weight: 500;">Endereço de Origem:</label>
-                        <input type="text" id="endereco_origem" name="endereco_origem" placeholder="Digite endereço, estabelecimento ou local">
-                        <input type="hidden" id="lat_origem" name="lat_origem">
-                        <input type="hidden" id="lng_origem" name="lng_origem">
-                    </div>
-                    <div>
-                        <label style="font-size: 13px; font-weight: 500;">Endereço de Destino:</label>
-                        <input type="text" id="endereco_destino" name="endereco_destino" placeholder="Digite endereço, estabelecimento ou local">
-                        <input type="hidden" id="lat_destino" name="lat_destino">
-                        <input type="hidden" id="lng_destino" name="lng_destino">
-                    </div>
+            <!-- 03: Rota (opcional) -->
+            <div class="step">
+                <div class="step-head">
+                    <div class="step-num">03</div>
+                    <div class="step-label">Rota <span class="opt-badge">Opcional</span></div>
                 </div>
-                <button type="button" class="btn-calculate-distance" id="btn_calcular_distancia">📏 Calcular distância pela rota</button>
-                <div id="distance_result" class="distance-result" style="display: none;"></div>
-                <span class="info-text">Busque endereços ou locais; a distância será preenchida no campo "Quilômetros" abaixo.</span>
-            </div>
-            <div class="map-container">
+
+                <div class="fg">
+                    <div class="addr-row">
+                        <div>
+                            <label class="lbl">Origem</label>
+                            <input type="text" id="endereco_origem" name="endereco_origem" placeholder="Endereço de partida">
+                            <input type="hidden" id="lat_origem" name="lat_origem">
+                            <input type="hidden" id="lng_origem" name="lng_origem">
+                        </div>
+                        <div>
+                            <label class="lbl">Destino</label>
+                            <input type="text" id="endereco_destino" name="endereco_destino" placeholder="Endereço de chegada">
+                            <input type="hidden" id="lat_destino" name="lat_destino">
+                            <input type="hidden" id="lng_destino" name="lng_destino">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-dist" id="btn_calcular_distancia">
+                        📏 Calcular distância pela rota
+                    </button>
+                    <div id="distance_result" class="dist-result"></div>
+                    <p class="hint" style="margin-top: 9px;">A distância calculada preenche o campo "Quilômetros rodados" automaticamente.</p>
+                </div>
+
                 <div id="map"></div>
-            </div>
-            <div class="form-group">
-                <label>Quilômetros rodados</label>
-                <input type="number" name="km_rodado" id="km_rodado" step="0.01" min="0" required placeholder="Ex: 2100">
-                <span class="info-text">Pode ser preenchido automaticamente pelo mapa acima</span>
-            </div>
-            <div class="form-group" id="grupo_carga">
-                <label>Carga transportada (toneladas)</label>
-                <input type="number" name="carga_ton" id="carga_ton" step="0.01" min="0" placeholder="Ex: 25">
-                <span class="info-text">Apenas para caminhões — intensidade por tonelada</span>
-            </div>
+
+                <div class="fg">
+                    <label for="km_rodado" class="lbl">Quilômetros rodados</label>
+                    <input type="number" name="km_rodado" id="km_rodado" step="0.01" min="0" required placeholder="Ex: 2100">
+                </div>
+
+                <div class="fg hidden" id="grupo_carga">
+                    <label for="carga_ton" class="lbl">Carga transportada (toneladas)</label>
+                    <input type="number" name="carga_ton" id="carga_ton" step="0.01" min="0" placeholder="Ex: 25">
+                    <p class="hint">Usado para calcular a intensidade de emissões por tonelada (caminhões).</p>
+                </div>
             </div>
 
-            <button type="submit" class="btn-submit">Calcular e gerar relatório</button>
+            <!-- Submit -->
+            <div class="form-foot">
+                <button type="submit" class="btn-submit">
+                    Calcular e gerar relatório <span class="btn-arrow">→</span>
+                </button>
+                <p class="foot-note">Cálculo baseado no <strong>GHG Protocol Brasil</strong> · Relatório PDF gerado automaticamente</p>
+            </div>
+
         </form>
     </div>
 
-    <script>
-        let map;
-        let origemMarker = null;
-        let destinoMarker = null;
-        let origemAutocomplete;
-        let destinoAutocomplete;
-        let origemPlace;
-        let destinoPlace;
-        let isClickingOrigin = true; // Alterna entre origem e destino
+    <p class="page-foot">Carbon Log · Engenharia Ambiental · USP São Carlos</p>
+</main>
 
-        // Função para mostrar/ocultar campo de carga baseado no tipo de veículo
-        function toggleCampoCarga() {
-            const tipoVeiculo = document.querySelector('input[name="tipo_veiculo"]:checked').value;
-            const grupoCarga = document.getElementById('grupo_carga');
-            const campoCarga = document.getElementById('carga_ton');
-            
-            if (tipoVeiculo === 'carro') {
-                grupoCarga.classList.add('hidden');
-                campoCarga.removeAttribute('required');
-                campoCarga.value = '0'; // Define valor padrão para carro
-            } else {
-                grupoCarga.classList.remove('hidden');
-                campoCarga.setAttribute('required', 'required');
-                if (campoCarga.value === '0') {
-                    campoCarga.value = ''; // Limpa o valor padrão quando mostrar
-                }
-            }
+<script>
+    let map, origemMarker = null, destinoMarker = null;
+    let origemAutocomplete, destinoAutocomplete, origemPlace, destinoPlace;
+    let isClickingOrigin = true;
+
+    function toggleCampoCarga() {
+        const v = document.querySelector('input[name="tipo_veiculo"]:checked').value;
+        const grp = document.getElementById('grupo_carga');
+        const fld = document.getElementById('carga_ton');
+        if (v === 'carro') {
+            grp.classList.add('hidden');
+            fld.removeAttribute('required');
+            fld.value = '0';
+        } else {
+            grp.classList.remove('hidden');
+            fld.setAttribute('required', 'required');
+            if (fld.value === '0') fld.value = '';
         }
+    }
 
-        // Inicializa o mapa do Google
-        function initMap() {
-            // Marca que o mapa foi carregado
-            window.GOOGLE_MAPS_LOADED = true;
-            
-            // Verifica se o Google Maps está carregado
-            if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
-                console.error('Google Maps não foi carregado');
-                const mapContainer = document.getElementById('map');
-                if (mapContainer) {
-                    mapContainer.innerHTML = '<div style="padding: 50px; text-align: center; color: #e74c3c; background: #ffe6e6; border-radius: 8px;"><h3>Google Maps nao carregado</h3><p>Verifique sua API key e as APIs habilitadas no Google Cloud Console.</p><p style="font-size: 12px;">Abra o console do navegador (F12) para ver erros detalhados.</p></div>';
-                }
-                return;
-            }
-            
-            try {
-                // Centro inicial (São Carlos, SP - Brasil)
-                const saoCarlos = { lat: -22.0084, lng: -47.8908 };
-            
-                map = new google.maps.Map(document.getElementById('map'), {
-                    center: saoCarlos,
-                    zoom: 13,
-                    mapTypeControl: true,
-                    streetViewControl: true
+    function initMap() {
+        window.GOOGLE_MAPS_LOADED = true;
+        if (typeof google === 'undefined' || typeof google.maps === 'undefined') return;
+        try {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -22.0084, lng: -47.8908 },
+                zoom: 13,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false
+            });
+
+            if (typeof google.maps.places !== 'undefined') {
+                origemAutocomplete = new google.maps.places.Autocomplete(
+                    document.getElementById('endereco_origem'), { types: ['geocode', 'establishment'] }
+                );
+                origemAutocomplete.bindTo('bounds', map);
+                origemAutocomplete.addListener('place_changed', () => {
+                    origemPlace = origemAutocomplete.getPlace();
+                    if (!origemPlace.geometry) return;
+                    origemPlace.geometry.viewport ? map.fitBounds(origemPlace.geometry.viewport) : (map.setCenter(origemPlace.geometry.location), map.setZoom(17));
+                    if (origemMarker) origemMarker.setMap(null);
+                    origemMarker = new google.maps.Marker({ map, position: origemPlace.geometry.location, title: 'Origem', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', draggable: true });
+                    document.getElementById('lat_origem').value = origemPlace.geometry.location.lat();
+                    document.getElementById('lng_origem').value = origemPlace.geometry.location.lng();
+                    origemMarker.addListener('dragend', () => {
+                        const p = origemMarker.getPosition();
+                        document.getElementById('lat_origem').value = p.lat();
+                        document.getElementById('lng_origem').value = p.lng();
+                        if (window.directionsRenderer) window.directionsRenderer.setMap(null);
+                        calcularDistancia();
+                    });
+                    isClickingOrigin = false;
+                    calcularDistancia();
                 });
 
-                // Autocomplete para endereço de origem (aceita endereços, estabelecimentos e locais)
-                if (typeof google.maps.places !== 'undefined') {
-                    origemAutocomplete = new google.maps.places.Autocomplete(
-                        document.getElementById('endereco_origem'),
-                        { 
-                            types: ['geocode', 'establishment']
-                        }
-                    );
-                    origemAutocomplete.bindTo('bounds', map);
-                    origemAutocomplete.addListener('place_changed', function() {
-                        origemPlace = origemAutocomplete.getPlace();
-                        if (!origemPlace.geometry) {
-                            return;
-                        }
-                        if (origemPlace.geometry.viewport) {
-                            map.fitBounds(origemPlace.geometry.viewport);
-                        } else {
-                            map.setCenter(origemPlace.geometry.location);
-                            map.setZoom(17);
-                        }
-                        
-                        // Remove marcador anterior e adiciona novo
-                        if (origemMarker) {
-                            origemMarker.setMap(null);
-                        }
-                        origemMarker = new google.maps.Marker({
-                            map: map,
-                            position: origemPlace.geometry.location,
-                            title: 'Origem',
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                            draggable: true
-                        });
-                        
-                        // Salva coordenadas
-                        document.getElementById('lat_origem').value = origemPlace.geometry.location.lat();
-                        document.getElementById('lng_origem').value = origemPlace.geometry.location.lng();
-                        
-                        origemMarker.addListener('dragend', function() {
-                            const pos = origemMarker.getPosition();
-                            document.getElementById('lat_origem').value = pos.lat();
-                            document.getElementById('lng_origem').value = pos.lng();
-                            if (window.directionsRenderer) {
-                                window.directionsRenderer.setMap(null);
-                            }
-                            calcularDistancia();
-                        });
-                        
-                        isClickingOrigin = false;
+                destinoAutocomplete = new google.maps.places.Autocomplete(
+                    document.getElementById('endereco_destino'), { types: ['geocode', 'establishment'] }
+                );
+                destinoAutocomplete.bindTo('bounds', map);
+                destinoAutocomplete.addListener('place_changed', () => {
+                    destinoPlace = destinoAutocomplete.getPlace();
+                    if (!destinoPlace.geometry) return;
+                    destinoPlace.geometry.viewport ? map.fitBounds(destinoPlace.geometry.viewport) : (map.setCenter(destinoPlace.geometry.location), map.setZoom(17));
+                    if (destinoMarker) destinoMarker.setMap(null);
+                    destinoMarker = new google.maps.Marker({ map, position: destinoPlace.geometry.location, title: 'Destino', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', draggable: true });
+                    document.getElementById('lat_destino').value = destinoPlace.geometry.location.lat();
+                    document.getElementById('lng_destino').value = destinoPlace.geometry.location.lng();
+                    destinoMarker.addListener('dragend', () => {
+                        const p = destinoMarker.getPosition();
+                        document.getElementById('lat_destino').value = p.lat();
+                        document.getElementById('lng_destino').value = p.lng();
+                        if (window.directionsRenderer) window.directionsRenderer.setMap(null);
                         calcularDistancia();
                     });
-                }
+                    isClickingOrigin = true;
+                    calcularDistancia();
+                });
+            }
 
-                // Autocomplete para endereço de destino (aceita endereços, estabelecimentos e locais)
-                if (typeof google.maps.places !== 'undefined') {
-                    destinoAutocomplete = new google.maps.places.Autocomplete(
-                        document.getElementById('endereco_destino'),
-                        { 
-                            types: ['geocode', 'establishment']
-                        }
-                    );
-                    destinoAutocomplete.bindTo('bounds', map);
-                    destinoAutocomplete.addListener('place_changed', function() {
-                        destinoPlace = destinoAutocomplete.getPlace();
-                        if (!destinoPlace.geometry) {
-                            return;
-                        }
-                        if (destinoPlace.geometry.viewport) {
-                            map.fitBounds(destinoPlace.geometry.viewport);
-                        } else {
-                            map.setCenter(destinoPlace.geometry.location);
-                            map.setZoom(17);
-                        }
-                        
-                        // Remove marcador anterior e adiciona novo
-                        if (destinoMarker) {
-                            destinoMarker.setMap(null);
-                        }
-                        destinoMarker = new google.maps.Marker({
-                            map: map,
-                            position: destinoPlace.geometry.location,
-                            title: 'Destino',
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                            draggable: true
-                        });
-                        
-                        // Salva coordenadas
-                        document.getElementById('lat_destino').value = destinoPlace.geometry.location.lat();
-                        document.getElementById('lng_destino').value = destinoPlace.geometry.location.lng();
-                        
-                        destinoMarker.addListener('dragend', function() {
-                            const pos = destinoMarker.getPosition();
-                            document.getElementById('lat_destino').value = pos.lat();
-                            document.getElementById('lng_destino').value = pos.lng();
-                            if (window.directionsRenderer) {
-                                window.directionsRenderer.setMap(null);
-                            }
-                            calcularDistancia();
-                        });
-                        
-                        isClickingOrigin = true;
-                        calcularDistancia();
-                    });
-                }
-
-                // Permite clicar no mapa para definir origem/destino
-                map.addListener('click', function(event) {
-                const lat = event.latLng.lat();
-                const lng = event.latLng.lng();
-                
+            map.addListener('click', (event) => {
+                const geocoder = new google.maps.Geocoder();
                 if (isClickingOrigin) {
-                    // Define origem
-                    if (origemMarker) {
-                        origemMarker.setMap(null);
-                    }
-                    origemMarker = new google.maps.Marker({
-                        map: map,
-                        position: event.latLng,
-                        title: 'Origem',
-                        icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                        draggable: true
-                    });
-                    document.getElementById('lat_origem').value = lat;
-                    document.getElementById('lng_origem').value = lng;
-                    
-                    // Busca endereço reverso
-                    const geocoder = new google.maps.Geocoder();
-                    geocoder.geocode({ location: event.latLng }, function(results, status) {
-                        if (status === 'OK' && results[0]) {
-                            document.getElementById('endereco_origem').value = results[0].formatted_address;
-                        }
-                    });
-                    
-                    origemMarker.addListener('dragend', function() {
-                        const pos = origemMarker.getPosition();
-                        document.getElementById('lat_origem').value = pos.lat();
-                        document.getElementById('lng_origem').value = pos.lng();
-                        calcularDistancia();
-                    });
-                    
+                    if (origemMarker) origemMarker.setMap(null);
+                    origemMarker = new google.maps.Marker({ map, position: event.latLng, title: 'Origem', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', draggable: true });
+                    document.getElementById('lat_origem').value = event.latLng.lat();
+                    document.getElementById('lng_origem').value = event.latLng.lng();
+                    geocoder.geocode({ location: event.latLng }, (r, s) => { if (s === 'OK' && r[0]) document.getElementById('endereco_origem').value = r[0].formatted_address; });
+                    origemMarker.addListener('dragend', () => { const p = origemMarker.getPosition(); document.getElementById('lat_origem').value = p.lat(); document.getElementById('lng_origem').value = p.lng(); calcularDistancia(); });
                     isClickingOrigin = false;
                 } else {
-                    // Define destino
-                    if (destinoMarker) {
-                        destinoMarker.setMap(null);
-                    }
-                    destinoMarker = new google.maps.Marker({
-                        map: map,
-                        position: event.latLng,
-                        title: 'Destino',
-                        icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                        draggable: true
-                    });
-                    document.getElementById('lat_destino').value = lat;
-                    document.getElementById('lng_destino').value = lng;
-                    
-                    // Busca endereço reverso
-                    const geocoder = new google.maps.Geocoder();
-                    geocoder.geocode({ location: event.latLng }, function(results, status) {
-                        if (status === 'OK' && results[0]) {
-                            document.getElementById('endereco_destino').value = results[0].formatted_address;
-                        }
-                    });
-                    
-                    destinoMarker.addListener('dragend', function() {
-                        const pos = destinoMarker.getPosition();
-                        document.getElementById('lat_destino').value = pos.lat();
-                        document.getElementById('lng_destino').value = pos.lng();
-                        calcularDistancia();
-                    });
-                    
+                    if (destinoMarker) destinoMarker.setMap(null);
+                    destinoMarker = new google.maps.Marker({ map, position: event.latLng, title: 'Destino', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', draggable: true });
+                    document.getElementById('lat_destino').value = event.latLng.lat();
+                    document.getElementById('lng_destino').value = event.latLng.lng();
+                    geocoder.geocode({ location: event.latLng }, (r, s) => { if (s === 'OK' && r[0]) document.getElementById('endereco_destino').value = r[0].formatted_address; });
+                    destinoMarker.addListener('dragend', () => { const p = destinoMarker.getPosition(); document.getElementById('lat_destino').value = p.lat(); document.getElementById('lng_destino').value = p.lng(); calcularDistancia(); });
                     isClickingOrigin = true;
                 }
-                
                 calcularDistancia();
             });
-                
-            } catch (error) {
-                console.error('Erro ao inicializar mapa:', error);
-                const mapContainer = document.getElementById('map');
-                if (mapContainer) {
-                    mapContainer.innerHTML = '<div style="padding: 50px; text-align: center; color: #e74c3c;"><p>Erro ao inicializar o mapa: ' + error.message + '</p></div>';
-                }
-            }
-        }
+        } catch(e) { console.error('Erro ao inicializar mapa:', e); }
+    }
 
-        // Função para calcular distância de estrada entre origem e destino
-        function calcularDistancia() {
-            const latOrigem = parseFloat(document.getElementById('lat_origem').value);
-            const lngOrigem = parseFloat(document.getElementById('lng_origem').value);
-            const latDestino = parseFloat(document.getElementById('lat_destino').value);
-            const lngDestino = parseFloat(document.getElementById('lng_destino').value);
-            
-            if (latOrigem && lngOrigem && latDestino && lngDestino) {
-                const origem = new google.maps.LatLng(latOrigem, lngOrigem);
-                const destino = new google.maps.LatLng(latDestino, lngDestino);
-                
-                // Remove rota anterior se existir
-                if (window.directionsRenderer) {
-                    window.directionsRenderer.setMap(null);
-                }
-                if (window.routeLine) {
-                    window.routeLine.setMap(null);
-                }
-                
-                // Usa Directions Service para calcular distância de estrada
-                const directionsService = new google.maps.DirectionsService();
-                const directionsRenderer = new google.maps.DirectionsRenderer({
-                    map: map,
-                    suppressMarkers: true, // Não mostra marcadores padrão (já temos os nossos)
-                    preserveViewport: false, // Permite ajustar zoom
-                    polylineOptions: {
-                        strokeColor: '#3498db',
-                        strokeWeight: 4,
-                        strokeOpacity: 0.7
-                    }
-                });
-                
-                directionsService.route({
-                    origin: origem,
-                    destination: destino,
-                    travelMode: google.maps.TravelMode.DRIVING, // Modo de condução (estrada)
-                    unitSystem: google.maps.UnitSystem.METRIC // Sistema métrico (km)
-                }, function(response, status) {
-                    if (status === 'OK') {
-                        // Desenha a rota no mapa
-                        directionsRenderer.setDirections(response);
-                        
-                        // Calcula a distância total da rota
-                        let distanciaTotal = 0;
-                        const route = response.routes[0];
-                        route.legs.forEach(function(leg) {
-                            distanciaTotal += leg.distance.value; // Distância em metros
-                        });
-                        
-                        const distanciaKm = (distanciaTotal / 1000).toFixed(2);
-                        
-                        // Atualiza campo de quilômetros
-                        document.getElementById('km_rodado').value = distanciaKm;
-                        
-                        // Mostra resultado
-                        const resultDiv = document.getElementById('distance_result');
-                        resultDiv.style.display = 'block';
-                        resultDiv.innerHTML = '📍 Distância calculada e preenchida no campo "Quilômetros Rodados" abaixo.';
-                        
-                        // Ajusta zoom para mostrar toda a rota
-                        const bounds = new google.maps.LatLngBounds();
-                        route.legs.forEach(function(leg) {
-                            bounds.extend(leg.start_location);
-                            bounds.extend(leg.end_location);
-                        });
-                        map.fitBounds(bounds);
-                        
-                        // Salva o renderer para poder removê-lo depois
-                        window.directionsRenderer = directionsRenderer;
-                    } else {
-                        // Se falhar, usa cálculo de linha reta como fallback
-                        console.warn('Erro ao calcular rota:', status);
-                        const distancia = google.maps.geometry.spherical.computeDistanceBetween(origem, destino);
-                        const distanciaKm = (distancia / 1000).toFixed(2);
-                        document.getElementById('km_rodado').value = distanciaKm;
-                        
-                        const resultDiv = document.getElementById('distance_result');
-                        resultDiv.style.display = 'block';
-                        resultDiv.innerHTML = '⚠️ Distância aproximada preenchida no campo "Quilômetros Rodados" (linha reta - rota não calculada).';
-                        
-                        // Desenha linha reta como fallback
-                        if (window.routeLine) {
-                            window.routeLine.setMap(null);
-                        }
-                        window.routeLine = new google.maps.Polyline({
-                            path: [origem, destino],
-                            geodesic: true,
-                            strokeColor: '#e74c3c',
-                            strokeOpacity: 0.5,
-                            strokeWeight: 2
-                        });
-                        window.routeLine.setMap(map);
-                    }
-                });
-            }
-        }
+    function calcularDistancia() {
+        const lo = parseFloat(document.getElementById('lat_origem').value);
+        const go = parseFloat(document.getElementById('lng_origem').value);
+        const ld = parseFloat(document.getElementById('lat_destino').value);
+        const gd = parseFloat(document.getElementById('lng_destino').value);
+        if (!lo || !go || !ld || !gd) return;
 
-        // Adiciona event listeners aos radio buttons
-        document.querySelectorAll('input[name="tipo_veiculo"]').forEach(radio => {
-            radio.addEventListener('change', toggleCampoCarga);
+        const origem = new google.maps.LatLng(lo, go);
+        const destino = new google.maps.LatLng(ld, gd);
+        if (window.directionsRenderer) window.directionsRenderer.setMap(null);
+        if (window.routeLine) window.routeLine.setMap(null);
+
+        const svc = new google.maps.DirectionsService();
+        const renderer = new google.maps.DirectionsRenderer({
+            map, suppressMarkers: true,
+            polylineOptions: { strokeColor: '#0d5c4a', strokeWeight: 4, strokeOpacity: .85 }
         });
 
-        // Alterna UI de acordo com o modo de cálculo (preciso x estimado)
-        function toggleModoCalculo() {
-            const modo = document.querySelector('input[name="modo_calculo"]:checked')?.value || 'preciso';
-            const campoLitros = document.querySelector('input[name="litros"]');
-            const labelLitros = document.querySelector('[data-label-litros]');
-            
-            if (!campoLitros || !labelLitros) return;
-
-            if (modo === 'estimado') {
-                campoLitros.disabled = true;
-                campoLitros.required = false;
-                campoLitros.value = '';
-                campoLitros.placeholder = 'Será estimado a partir dos km rodados';
-                labelLitros.textContent = 'Litros de combustível (estimado)';
+        svc.route({ origin: origem, destination: destino, travelMode: google.maps.TravelMode.DRIVING, unitSystem: google.maps.UnitSystem.METRIC }, (response, status) => {
+            const resultDiv = document.getElementById('distance_result');
+            if (status === 'OK') {
+                renderer.setDirections(response);
+                let total = 0;
+                response.routes[0].legs.forEach(l => total += l.distance.value);
+                const km = (total / 1000).toFixed(2);
+                document.getElementById('km_rodado').value = km;
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `✅ Distância calculada: <strong>${km} km</strong> — preenchida automaticamente abaixo.`;
+                const bounds = new google.maps.LatLngBounds();
+                response.routes[0].legs.forEach(l => { bounds.extend(l.start_location); bounds.extend(l.end_location); });
+                map.fitBounds(bounds);
+                window.directionsRenderer = renderer;
             } else {
-                campoLitros.disabled = false;
-                campoLitros.required = true;
-                campoLitros.placeholder = 'Ex: 500,5';
-                labelLitros.textContent = 'Litros de combustível';
+                const dist = google.maps.geometry.spherical.computeDistanceBetween(origem, destino);
+                const km = (dist / 1000).toFixed(2);
+                document.getElementById('km_rodado').value = km;
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `⚠ Distância aproximada (linha reta): <strong>${km} km</strong>`;
             }
+        });
+    }
+
+    document.querySelectorAll('input[name="tipo_veiculo"]').forEach(r => r.addEventListener('change', toggleCampoCarga));
+
+    function toggleModoCalculo() {
+        const modo = document.querySelector('input[name="modo_calculo"]:checked')?.value || 'estimado';
+        const fld = document.querySelector('input[name="litros"]');
+        const lbl = document.querySelector('[data-label-litros]');
+        if (!fld || !lbl) return;
+        if (modo === 'estimado') {
+            fld.disabled = true; fld.required = false; fld.value = '';
+            fld.placeholder = 'Estimado a partir dos km rodados';
+            lbl.textContent = 'Litros de combustível (estimado)';
+        } else {
+            fld.disabled = false; fld.required = true;
+            fld.placeholder = 'Ex: 500,5';
+            lbl.textContent = 'Litros de combustível';
         }
+    }
 
-        document.querySelectorAll('input[name="modo_calculo"]').forEach(radio => {
-            radio.addEventListener('change', toggleModoCalculo);
-        });
+    document.querySelectorAll('input[name="modo_calculo"]').forEach(r => r.addEventListener('change', toggleModoCalculo));
+    document.getElementById('btn_calcular_distancia').addEventListener('click', calcularDistancia);
+    document.addEventListener('DOMContentLoaded', () => { toggleCampoCarga(); toggleModoCalculo(); });
 
-        // Botão para calcular distância manualmente
-        document.getElementById('btn_calcular_distancia').addEventListener('click', calcularDistancia);
-
-        // Executa na carga da página para definir o estado inicial
-        document.addEventListener('DOMContentLoaded', function() {
-            toggleCampoCarga();
-            toggleModoCalculo();
-        });
-        
-        // Função para lidar com erro de autenticação do Google Maps
-        window.gm_authFailure = function() {
-            console.error('Google Maps Auth Failure - API key inválida ou sem permissão');
-            window.GOOGLE_MAPS_LOADED = false;
-            const mapContainer = document.getElementById('map');
-            if (mapContainer) {
-                mapContainer.innerHTML = '<div style="padding: 50px; text-align: center; color: #e74c3c; background: #ffe6e6; border-radius: 8px;"><h3>Erro de Autenticacao do Google Maps</h3><p><strong>PROBLEMA: Restricoes de Referenciador (HTTP Referrer)</strong></p><p style="margin-top: 15px; font-size: 14px;"><strong>SOLUCAO IMEDIATA:</strong></p><ol style="text-align: left; display: inline-block; max-width: 650px; font-size: 13px; line-height: 1.8;"><li>Acesse: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color: #3498db;">Google Cloud Console - Credenciais</a></li><li>Clique na sua API key (AIzaSyCaRYgdfZVFac-8...)</li><li>Em <strong>"Restricoes de aplicativo"</strong>:<ul style="margin-top: 5px;"><li>Escolha <strong>"Nenhuma"</strong> (temporariamente para testar)</li><li>OU escolha "Referenciadores de HTTP" e adicione:<ul><li><code>http://localhost:*</code></li><li><code>http://127.0.0.1:*</code></li></ul></li></ul></li><li>Clique em <strong>"SALVAR"</strong> e aguarde 30 segundos</li><li>Recarregue esta pagina: <strong>Ctrl+F5</strong></li></ol><p style="margin-top: 20px; font-size: 12px; color: #7f8c8d;">As APIs estao funcionando (teste confirmado). O problema e apenas as restricoes de acesso do navegador.</p></div>';
-            }
-        };
-    </script>
+    window.gm_authFailure = () => {
+        const el = document.getElementById('map');
+        if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:32px;background:#fef2f2;border-radius:8px;color:#dc2626;text-align:center"><strong>⚠ Erro de autenticação do Google Maps</strong><p style="font-size:12px;color:#9ca3af">Verifique as restrições da API key no Google Cloud Console.</p></div>`;
+    };
+</script>
 </body>
 </html>
