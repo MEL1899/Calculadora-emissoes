@@ -1,400 +1,39 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html data-theme="emerald" lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carbon Log — Calculadora de Emissões GEE</title>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- DaisyUI v5 + Tailwind v4 (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Alpine.js v3 -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+    <style type="text/tailwindcss">
+        @theme { --font-sans: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+
     <style>
-        :root {
-            --g900: #0a4a3b;
-            --g800: #0d5c4a;
-            --g700: #127a62;
-            --g600: #16856b;
-            --g400: #2ab090;
-            --g100: #c8ece4;
-            --g50:  #e8f5f1;
-            --bg:   #f2f7f5;
-            --card: #ffffff;
-            --txt:  #111827;
-            --muted:#6b7280;
-            --border:#dde8e5;
-            --radius:14px;
-            --rsm:  8px;
-            --shadow: 0 2px 12px rgba(10,74,59,.07);
-            --shadow-lg: 0 6px 28px rgba(10,74,59,.11);
+        /* Personaliza o tema emerald com as cores do Carbon Log */
+        [data-theme="emerald"] {
+            --color-primary: oklch(37.3% 0.148 170);
+            --color-primary-content: oklch(100% 0 0);
+            --color-secondary: oklch(49% 0.152 166);
+            --color-secondary-content: oklch(100% 0 0);
         }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg);
-            color: var(--txt);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        /* ── Topbar ────────────────────────────────── */
-        .topbar {
-            background: #fff;
-            border-bottom: 1px solid var(--border);
-            height: 58px;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            position: sticky;
-            top: 0;
-            z-index: 200;
-            gap: 10px;
-        }
-        .logo-pill {
-            width: 34px; height: 34px;
-            background: linear-gradient(135deg, var(--g900), var(--g600));
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 17px;
-            flex-shrink: 0;
-        }
-        .logo-name {
-            font-size: .95rem;
-            font-weight: 800;
-            color: var(--txt);
-            letter-spacing: -.02em;
-        }
-        .logo-tag {
-            font-size: .62rem;
-            font-weight: 700;
-            color: var(--g700);
-            background: var(--g50);
-            border: 1px solid var(--g100);
-            padding: 2px 8px;
-            border-radius: 99px;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-        }
-
-        /* ── Main layout ───────────────────────────── */
-        .main {
-            max-width: 660px;
-            margin: 0 auto;
-            padding: 44px 20px 80px;
-        }
-
-        /* ── Hero ──────────────────────────────────── */
-        .hero {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        .hero h1 {
-            font-size: 1.85rem;
-            font-weight: 800;
-            letter-spacing: -.03em;
-            line-height: 1.18;
-            color: var(--txt);
-            margin-bottom: 10px;
-        }
-        .hero p {
-            font-size: .88rem;
-            color: var(--muted);
-            max-width: 460px;
-            margin: 0 auto;
-            line-height: 1.65;
-        }
-        .ghg-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--g50);
-            border: 1px solid var(--g100);
-            color: var(--g800);
-            font-size: .72rem;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 99px;
-            margin-bottom: 14px;
-            letter-spacing: .03em;
-            text-transform: uppercase;
-        }
-
-        /* ── Form card ─────────────────────────────── */
-        .form-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-
-        /* ── Steps ─────────────────────────────────── */
-        .step {
-            padding: 28px 32px;
-            border-bottom: 1px solid var(--border);
-        }
-        .step:last-of-type { border-bottom: none; }
-
-        .step-head {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            margin-bottom: 22px;
-        }
-        .step-num {
-            width: 26px; height: 26px;
-            border-radius: 7px;
-            background: var(--g50);
-            border: 1px solid var(--g100);
-            font-size: .68rem;
-            font-weight: 800;
-            color: var(--g900);
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            font-variant-numeric: tabular-nums;
-        }
-        .step-label {
-            font-size: .75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .07em;
-            color: var(--g800);
-        }
-        .opt-badge {
-            display: inline-block;
-            font-size: .62rem;
-            font-weight: 600;
-            color: var(--muted);
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            padding: 1px 7px;
-            border-radius: 99px;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-            margin-left: 6px;
-            vertical-align: middle;
-        }
-
-        /* ── Form groups ───────────────────────────── */
-        .fg { margin-bottom: 20px; }
-        .fg:last-child { margin-bottom: 0; }
-
-        .fg > label, label.lbl {
-            display: block;
-            margin-bottom: 7px;
-            font-size: .84rem;
-            font-weight: 600;
-            color: var(--txt);
-        }
-        .hint {
-            font-size: .75rem;
-            color: var(--muted);
-            margin-top: 5px;
-        }
-
-        input[type="email"],
-        input[type="number"],
-        input[type="text"],
-        select {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--rsm);
-            font-size: .88rem;
-            font-family: inherit;
-            background: #fff;
-            color: var(--txt);
-            transition: border-color .15s, box-shadow .15s;
-            appearance: none;
-        }
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 13px center;
-            padding-right: 34px;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--g700);
-            box-shadow: 0 0 0 3px rgba(13,92,74,.12);
-        }
-        input::placeholder { color: #b8cdc8; }
-        input:disabled {
-            background: var(--bg);
-            color: var(--muted);
-            cursor: not-allowed;
-        }
-
-        /* ── Radio cards (vehicle type) ────────────── */
-        .radio-grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .rcard { position: relative; }
-        .rcard input[type="radio"] {
-            position: absolute; opacity: 0; width: 0; height: 0;
-        }
-        .rcard > label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            padding: 18px 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--rsm);
-            cursor: pointer;
-            transition: all .15s;
-            text-align: center;
-            margin-bottom: 0;
-            user-select: none;
-        }
-        .rcard > label .rc-icon { font-size: 1.8rem; line-height: 1; }
-        .rcard > label .rc-name { font-size: .85rem; font-weight: 700; color: var(--txt); }
-        .rcard > label .rc-sub  { font-size: .7rem; color: var(--muted); font-weight: 400; }
-        .rcard > label:hover { border-color: var(--g400); background: var(--g50); }
-        .rcard input:checked + label {
-            border-color: var(--g800);
-            background: var(--g50);
-            box-shadow: inset 0 0 0 1px var(--g800);
-        }
-        .rcard input:checked + label .rc-name { color: var(--g800); }
-
-        /* ── Mode selector ─────────────────────────── */
-        .mode-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .mcard { position: relative; }
-        .mcard input[type="radio"] {
-            position: absolute; opacity: 0; width: 0; height: 0;
-        }
-        .mcard > label {
-            display: flex;
-            align-items: flex-start;
-            gap: 11px;
-            padding: 13px 15px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--rsm);
-            cursor: pointer;
-            transition: all .15s;
-            margin-bottom: 0;
-            user-select: none;
-        }
-        .mcard > label .mc-icon { font-size: 1.15rem; line-height: 1.4; flex-shrink: 0; }
-        .mcard > label .mc-txt  { display: flex; flex-direction: column; gap: 2px; }
-        .mcard > label .mc-name { font-size: .84rem; font-weight: 700; color: var(--txt); }
-        .mcard > label .mc-desc { font-size: .7rem; color: var(--muted); }
-        .mcard > label:hover { border-color: var(--g400); background: var(--g50); }
-        .mcard input:checked + label {
-            border-color: var(--g800);
-            background: var(--g50);
-            box-shadow: inset 0 0 0 1px var(--g800);
-        }
-        .mcard input:checked + label .mc-name { color: var(--g800); }
-
-        /* ── Map / Address ─────────────────────────── */
-        .addr-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 13px;
-        }
-        .addr-row label { font-size: .78rem; font-weight: 600; }
-
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         #map {
-            height: 310px;
-            border-radius: var(--rsm);
-            border: 1.5px solid var(--border);
-            overflow: hidden;
-            margin: 12px 0;
-        }
-
-        .btn-dist {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--g50);
-            color: var(--g900);
-            border: 1.5px solid var(--g100);
-            padding: 9px 15px;
-            border-radius: var(--rsm);
-            cursor: pointer;
-            font-size: .82rem;
-            font-weight: 700;
-            font-family: inherit;
-            transition: all .15s;
-        }
-        .btn-dist:hover { background: var(--g100); border-color: var(--g400); }
-
-        .dist-result {
-            display: none;
-            margin-top: 10px;
-            padding: 10px 14px;
-            background: var(--g50);
-            border: 1px solid var(--g100);
-            border-radius: var(--rsm);
-            font-size: .82rem;
-            color: var(--g900);
-        }
-
-        .hidden { display: none !important; }
-
-        /* ── Submit area ───────────────────────────── */
-        .form-foot {
-            padding: 24px 32px;
-        }
-
-        .btn-submit {
+            height: 300px;
             width: 100%;
-            padding: 15px 24px;
-            background: linear-gradient(135deg, var(--g900) 0%, var(--g700) 100%);
-            color: #fff;
-            border: none;
-            border-radius: var(--rsm);
-            font-size: .95rem;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all .2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            letter-spacing: -.01em;
-        }
-        .btn-submit:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 22px rgba(10,74,59,.28);
-        }
-        .btn-submit:active { transform: translateY(0); }
-        .btn-arrow {
-            font-size: 1.1rem;
-            transition: transform .2s;
-        }
-        .btn-submit:hover .btn-arrow { transform: translateX(3px); }
-
-        .foot-note {
-            text-align: center;
-            font-size: .73rem;
-            color: var(--muted);
-            margin-top: 12px;
-        }
-
-        /* ── Responsive ────────────────────────────── */
-        @media (max-width: 540px) {
-            .step { padding: 22px 20px; }
-            .form-foot { padding: 20px 20px; }
-            .radio-grid-2, .mode-grid, .addr-row { grid-template-columns: 1fr; }
-            .hero h1 { font-size: 1.5rem; }
-        }
-
-        .page-foot {
-            text-align: center;
-            font-size: .73rem;
-            color: var(--muted);
-            margin-top: 28px;
+            border-radius: 0.75rem;
         }
     </style>
 
@@ -415,7 +54,7 @@
         }, 10000);
         function showMapError(msg) {
             const el = document.getElementById('map');
-            if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:32px;background:#fef2f2;border-radius:8px;color:#dc2626;text-align:center"><strong>⚠ ${msg}</strong><p style="font-size:12px;color:#9ca3af">Desative o AdBlock e recarregue a página.</p></div>`;
+            if (el) el.innerHTML = `<div class="flex items-center justify-center h-full bg-error/10 rounded-xl text-error text-sm p-6 text-center"><div><strong>⚠ ${msg}</strong><p class="text-xs text-base-content/50 mt-1">Desative o AdBlock e recarregue.</p></div></div>`;
         }
         document.readyState === 'loading'
             ? document.addEventListener('DOMContentLoaded', loadGoogleMapsScript)
@@ -425,353 +64,369 @@
     <script>
         function initMap() {
             const el = document.getElementById('map');
-            if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:32px;background:#fffbeb;border-radius:8px;color:#d97706;text-align:center"><strong>⚠ API Key não configurada</strong><p style="font-size:12px;color:#9ca3af">Configure em config.py</p></div>`;
+            if (el) el.innerHTML = `<div class="flex items-center justify-center h-full bg-warning/10 rounded-xl text-warning text-sm p-6 text-center"><strong>⚠ API Key não configurada</strong><p class="text-xs text-base-content/50 mt-1">Configure em config.py</p></div>`;
         }
     </script>
     {% endif %}
 </head>
-<body>
 
-<nav class="topbar">
-    <div class="logo-pill">🌿</div>
-    <span class="logo-name">Carbon Log</span>
-    <span class="logo-tag">GHG Protocol</span>
-</nav>
+<body class="bg-base-200 min-h-screen">
 
-<main class="main">
-
-    <div class="hero">
-        <div class="ghg-badge">🌍 Cálculo de Emissões GEE</div>
-        <h1>Quanto CO₂ sua viagem emitiu?</h1>
-        <p>Calcule as emissões de gases de efeito estufa com base no GHG Protocol Brasil. Gera relatório PDF auditável em segundos.</p>
+    <!-- ── Navbar ────────────────────────────────────── -->
+    <div class="navbar bg-base-100 border-b border-base-300 shadow-sm sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto w-full px-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl shadow-sm">🌿</div>
+            <span class="font-extrabold text-lg tracking-tight">Carbon Log</span>
+            <div class="badge badge-outline badge-sm font-semibold text-primary border-primary/30">GHG Protocol</div>
+        </div>
     </div>
 
-    <div class="form-card">
-        <form action="/calcular" method="post" id="formCalculo">
+    <!-- ── Main ──────────────────────────────────────── -->
+    <main class="max-w-xl mx-auto px-4 py-10">
 
-            <!-- 01: Veículo e contato -->
-            <div class="step">
-                <div class="step-head">
-                    <div class="step-num">01</div>
-                    <div class="step-label">Veículo e contato</div>
-                </div>
+        <!-- Hero -->
+        <div class="text-center mb-8">
+            <div class="badge badge-ghost gap-1 py-3 px-4 mb-3 text-xs font-semibold">🌍 Calculadora de Emissões de GEE</div>
+            <h1 class="text-3xl font-extrabold tracking-tight mb-3 leading-tight">Quanto CO₂ sua viagem emitiu?</h1>
+            <p class="text-base-content/55 text-sm max-w-xs mx-auto leading-relaxed">
+                Cálculo baseado no <strong class="text-base-content/75">GHG Protocol Brasil</strong> com fator de ajuste por idade do veículo.
+            </p>
+        </div>
 
-                <div class="fg">
-                    <label class="lbl">Tipo de veículo</label>
-                    <div class="radio-grid-2">
-                        <div class="rcard">
-                            <input type="radio" id="tipo_carro" name="tipo_veiculo" value="carro" required checked>
-                            <label for="tipo_carro">
-                                <span class="rc-icon">🚗</span>
-                                <span class="rc-name">Carro</span>
-                                <span class="rc-sub">Passeio · utilitário</span>
-                            </label>
-                        </div>
-                        <div class="rcard">
-                            <input type="radio" id="tipo_caminhao" name="tipo_veiculo" value="caminhao" required>
-                            <label for="tipo_caminhao">
-                                <span class="rc-icon">🚛</span>
-                                <span class="rc-name">Caminhão</span>
-                                <span class="rc-sub">Carga · frota</span>
-                            </label>
-                        </div>
+        <!-- ── Formulário com Alpine.js ──────────────── -->
+        <div class="card bg-base-100 shadow border border-base-300 overflow-hidden"
+             x-data="{
+                vehicle: 'carro',
+                mode: 'estimado',
+                get showCargo() { return this.vehicle === 'caminhao'; },
+                get litersDisabled() { return this.mode === 'estimado'; }
+             }">
+            <form action="/calcular" method="post" id="formCalculo">
+
+                <!-- STEP 01 ──────────────────────────── -->
+                <div class="p-6 border-b border-base-300">
+                    <div class="flex items-center gap-2 mb-5">
+                        <div class="badge badge-primary badge-sm font-bold text-xs px-2">01</div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-primary">Veículo e contato</span>
                     </div>
-                </div>
 
-                <div class="fg">
-                    <label for="email" class="lbl">E-mail</label>
-                    <input type="email" id="email" name="email" required placeholder="seu@email.com">
-                </div>
-            </div>
-
-            <!-- 02: Combustível e consumo -->
-            <div class="step">
-                <div class="step-head">
-                    <div class="step-num">02</div>
-                    <div class="step-label">Combustível e consumo</div>
-                </div>
-
-                <div class="fg">
-                    <label for="tipo_combustivel" class="lbl">Tipo de combustível</label>
-                    <select name="tipo_combustivel" id="tipo_combustivel" required>
-                        <option value="Diesel S10">Diesel S10</option>
-                        <option value="Gasolina">Gasolina</option>
-                        <option value="Etanol">Etanol</option>
-                    </select>
-                </div>
-
-                <div class="fg">
-                    <label class="lbl">Modo de cálculo</label>
-                    <div class="mode-grid">
-                        <div class="mcard">
-                            <input type="radio" id="modo_estimado" name="modo_calculo" value="estimado" checked>
-                            <label for="modo_estimado">
-                                <span class="mc-icon">≈</span>
-                                <div class="mc-txt">
-                                    <span class="mc-name">Estimado</span>
-                                    <span class="mc-desc">A partir dos km rodados</span>
+                    <!-- Tipo de veículo -->
+                    <fieldset class="mb-5">
+                        <legend class="text-sm font-semibold mb-2">Tipo de veículo</legend>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="tipo_veiculo" value="carro" x-model="vehicle" class="sr-only" required>
+                                <div class="border-2 rounded-xl p-4 text-center transition-all duration-150 select-none"
+                                     :class="vehicle === 'carro' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
+                                    <div class="text-3xl mb-1.5">🚗</div>
+                                    <div class="font-bold text-sm">Carro</div>
+                                    <div class="text-xs text-base-content/45 mt-0.5">Passeio · utilitário</div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="tipo_veiculo" value="caminhao" x-model="vehicle" class="sr-only">
+                                <div class="border-2 rounded-xl p-4 text-center transition-all duration-150 select-none"
+                                     :class="vehicle === 'caminhao' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
+                                    <div class="text-3xl mb-1.5">🚛</div>
+                                    <div class="font-bold text-sm">Caminhão</div>
+                                    <div class="text-xs text-base-content/45 mt-0.5">Carga · frota</div>
                                 </div>
                             </label>
                         </div>
-                        <div class="mcard">
-                            <input type="radio" id="modo_preciso" name="modo_calculo" value="preciso">
-                            <label for="modo_preciso">
-                                <span class="mc-icon">🔬</span>
-                                <div class="mc-txt">
-                                    <span class="mc-name">Preciso</span>
-                                    <span class="mc-desc">Litros reais consumidos</span>
+                    </fieldset>
+
+                    <!-- Email -->
+                    <fieldset>
+                        <label class="label pb-1.5">
+                            <span class="label-text font-semibold">E-mail</span>
+                        </label>
+                        <input type="email" name="email" required placeholder="seu@email.com"
+                               class="input input-bordered w-full">
+                    </fieldset>
+                </div>
+
+                <!-- STEP 02 ──────────────────────────── -->
+                <div class="p-6 border-b border-base-300">
+                    <div class="flex items-center gap-2 mb-5">
+                        <div class="badge badge-primary badge-sm font-bold text-xs px-2">02</div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-primary">Combustível e consumo</span>
+                    </div>
+
+                    <!-- Combustível -->
+                    <fieldset class="mb-4">
+                        <label class="label pb-1.5">
+                            <span class="label-text font-semibold">Tipo de combustível</span>
+                        </label>
+                        <select name="tipo_combustivel" required class="select select-bordered w-full">
+                            <option value="Diesel S10">⛽ Diesel S10</option>
+                            <option value="Gasolina">⛽ Gasolina</option>
+                            <option value="Etanol">🌾 Etanol</option>
+                        </select>
+                    </fieldset>
+
+                    <!-- Modo de cálculo -->
+                    <fieldset class="mb-4">
+                        <legend class="text-sm font-semibold mb-2">Modo de cálculo</legend>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="modo_calculo" value="estimado" x-model="mode" class="sr-only" checked>
+                                <div class="border-2 rounded-xl p-3 flex gap-3 items-center transition-all duration-150 select-none"
+                                     :class="mode === 'estimado' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
+                                    <span class="text-xl leading-none font-bold text-base-content/60">≈</span>
+                                    <div>
+                                        <div class="font-bold text-sm">Estimado</div>
+                                        <div class="text-xs text-base-content/45">A partir dos km</div>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="modo_calculo" value="preciso" x-model="mode" class="sr-only">
+                                <div class="border-2 rounded-xl p-3 flex gap-3 items-center transition-all duration-150 select-none"
+                                     :class="mode === 'preciso' ? 'border-primary bg-primary/8 shadow-sm' : 'border-base-300 hover:border-primary/50 hover:bg-base-200'">
+                                    <span class="text-lg leading-none">🔬</span>
+                                    <div>
+                                        <div class="font-bold text-sm">Preciso</div>
+                                        <div class="text-xs text-base-content/45">Litros reais</div>
+                                    </div>
                                 </div>
                             </label>
                         </div>
+                    </fieldset>
+
+                    <!-- Litros -->
+                    <fieldset class="mb-4">
+                        <label class="label pb-1.5">
+                            <span class="label-text font-semibold" data-label-litros
+                                  x-text="litersDisabled ? 'Litros de combustível (estimado)' : 'Litros de combustível'"></span>
+                        </label>
+                        <input type="number" name="litros" step="0.01" min="0"
+                               :required="!litersDisabled"
+                               :disabled="litersDisabled"
+                               :placeholder="litersDisabled ? 'Será estimado a partir dos km rodados' : 'Ex: 500,5'"
+                               class="input input-bordered w-full transition-all">
+                        <label class="label pt-1">
+                            <span class="label-text-alt text-base-content/45">No modo estimado, calculado automaticamente dos km rodados.</span>
+                        </label>
+                    </fieldset>
+
+                    <!-- Ano de fabricação -->
+                    <fieldset>
+                        <label class="label pb-1.5">
+                            <span class="label-text font-semibold">Ano de fabricação</span>
+                            <span class="label-text-alt text-base-content/45">Fator de ajuste por idade</span>
+                        </label>
+                        <select name="ano_fabricacao" required class="select select-bordered w-full">
+                            {% for ano in range(ano_atual, 1989, -1) %}
+                            <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
+                            {% endfor %}
+                        </select>
+                    </fieldset>
+                </div>
+
+                <!-- STEP 03 ──────────────────────────── -->
+                <div class="p-6 border-b border-base-300">
+                    <div class="flex items-center gap-2 mb-5">
+                        <div class="badge badge-primary badge-sm font-bold text-xs px-2">03</div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-primary">Rota</span>
+                        <div class="badge badge-ghost badge-sm text-xs">Opcional</div>
                     </div>
-                </div>
 
-                <div class="fg">
-                    <label data-label-litros class="lbl">Litros de combustível</label>
-                    <input type="number" name="litros" step="0.01" min="0" required placeholder="Ex: 500,5">
-                    <p class="hint">No modo estimado o campo é calculado automaticamente com base nos km rodados.</p>
-                </div>
-
-                <div class="fg">
-                    <label for="ano_fabricacao" class="lbl">Ano de fabricação</label>
-                    <select name="ano_fabricacao" id="ano_fabricacao" required>
-                        {% for ano in range(ano_atual, 1989, -1) %}
-                        <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
-                        {% endfor %}
-                    </select>
-                    <p class="hint">Usado para calcular o fator de ajuste por idade do veículo (GHG Protocol Brasil).</p>
-                </div>
-            </div>
-
-            <!-- 03: Rota (opcional) -->
-            <div class="step">
-                <div class="step-head">
-                    <div class="step-num">03</div>
-                    <div class="step-label">Rota <span class="opt-badge">Opcional</span></div>
-                </div>
-
-                <div class="fg">
-                    <div class="addr-row">
-                        <div>
-                            <label class="lbl">Origem</label>
-                            <input type="text" id="endereco_origem" name="endereco_origem" placeholder="Endereço de partida">
+                    <!-- Endereços -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                        <fieldset>
+                            <label class="label pb-1"><span class="label-text text-sm font-semibold">Origem</span></label>
+                            <input type="text" id="endereco_origem" name="endereco_origem"
+                                   placeholder="Endereço de partida"
+                                   class="input input-bordered input-sm w-full">
                             <input type="hidden" id="lat_origem" name="lat_origem">
                             <input type="hidden" id="lng_origem" name="lng_origem">
-                        </div>
-                        <div>
-                            <label class="lbl">Destino</label>
-                            <input type="text" id="endereco_destino" name="endereco_destino" placeholder="Endereço de chegada">
+                        </fieldset>
+                        <fieldset>
+                            <label class="label pb-1"><span class="label-text text-sm font-semibold">Destino</span></label>
+                            <input type="text" id="endereco_destino" name="endereco_destino"
+                                   placeholder="Endereço de chegada"
+                                   class="input input-bordered input-sm w-full">
                             <input type="hidden" id="lat_destino" name="lat_destino">
                             <input type="hidden" id="lng_destino" name="lng_destino">
-                        </div>
+                        </fieldset>
                     </div>
-                    <button type="button" class="btn-dist" id="btn_calcular_distancia">
+
+                    <button type="button" id="btn_calcular_distancia"
+                            class="btn btn-ghost btn-sm border border-base-300 mb-2">
                         📏 Calcular distância pela rota
                     </button>
-                    <div id="distance_result" class="dist-result"></div>
-                    <p class="hint" style="margin-top: 9px;">A distância calculada preenche o campo "Quilômetros rodados" automaticamente.</p>
+
+                    <div id="distance_result" class="hidden alert alert-success py-2 px-3 text-sm mb-3"></div>
+
+                    <div id="map" class="border border-base-300 mb-4 shadow-sm"></div>
+
+                    <fieldset class="mb-4">
+                        <label class="label pb-1.5">
+                            <span class="label-text font-semibold">Quilômetros rodados</span>
+                            <span class="label-text-alt text-base-content/45">Preenchido automaticamente pelo mapa</span>
+                        </label>
+                        <input type="number" name="km_rodado" id="km_rodado" step="0.01" min="0" required
+                               placeholder="Ex: 2100" class="input input-bordered w-full">
+                    </fieldset>
+
+                    <!-- Carga (só caminhão) -->
+                    <fieldset x-show="showCargo" x-transition>
+                        <label class="label pb-1.5">
+                            <span class="label-text font-semibold">Carga transportada (toneladas)</span>
+                            <span class="label-text-alt text-base-content/45">Intensidade por tonelada</span>
+                        </label>
+                        <input type="number" name="carga_ton" id="carga_ton" step="0.01" min="0"
+                               placeholder="Ex: 25" class="input input-bordered w-full"
+                               :required="showCargo">
+                    </fieldset>
+                    <input type="hidden" name="carga_ton" value="0" x-show="!showCargo">
                 </div>
 
-                <div id="map"></div>
-
-                <div class="fg">
-                    <label for="km_rodado" class="lbl">Quilômetros rodados</label>
-                    <input type="number" name="km_rodado" id="km_rodado" step="0.01" min="0" required placeholder="Ex: 2100">
+                <!-- Submit ──────────────────────────── -->
+                <div class="p-6">
+                    <button type="submit" class="btn btn-primary w-full text-base font-bold shadow-md">
+                        Calcular e gerar relatório
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </button>
+                    <p class="text-center text-xs text-base-content/35 mt-3">
+                        Baseado no <strong>GHG Protocol Brasil</strong> · Relatório PDF gerado automaticamente
+                    </p>
                 </div>
 
-                <div class="fg hidden" id="grupo_carga">
-                    <label for="carga_ton" class="lbl">Carga transportada (toneladas)</label>
-                    <input type="number" name="carga_ton" id="carga_ton" step="0.01" min="0" placeholder="Ex: 25">
-                    <p class="hint">Usado para calcular a intensidade de emissões por tonelada (caminhões).</p>
-                </div>
-            </div>
+            </form>
+        </div>
 
-            <!-- Submit -->
-            <div class="form-foot">
-                <button type="submit" class="btn-submit">
-                    Calcular e gerar relatório <span class="btn-arrow">→</span>
-                </button>
-                <p class="foot-note">Cálculo baseado no <strong>GHG Protocol Brasil</strong> · Relatório PDF gerado automaticamente</p>
-            </div>
+        <p class="text-center text-xs text-base-content/35 mt-6">
+            Carbon Log · Engenharia Ambiental · USP São Carlos
+        </p>
 
-        </form>
-    </div>
+    </main>
 
-    <p class="page-foot">Carbon Log · Engenharia Ambiental · USP São Carlos</p>
-</main>
+    <!-- ── Google Maps JS ─────────────────────────────── -->
+    <script>
+        let map, origemMarker = null, destinoMarker = null;
+        let origemAutocomplete, destinoAutocomplete;
+        let isClickingOrigin = true;
 
-<script>
-    let map, origemMarker = null, destinoMarker = null;
-    let origemAutocomplete, destinoAutocomplete, origemPlace, destinoPlace;
-    let isClickingOrigin = true;
-
-    function toggleCampoCarga() {
-        const v = document.querySelector('input[name="tipo_veiculo"]:checked').value;
-        const grp = document.getElementById('grupo_carga');
-        const fld = document.getElementById('carga_ton');
-        if (v === 'carro') {
-            grp.classList.add('hidden');
-            fld.removeAttribute('required');
-            fld.value = '0';
-        } else {
-            grp.classList.remove('hidden');
-            fld.setAttribute('required', 'required');
-            if (fld.value === '0') fld.value = '';
-        }
-    }
-
-    function initMap() {
-        window.GOOGLE_MAPS_LOADED = true;
-        if (typeof google === 'undefined' || typeof google.maps === 'undefined') return;
-        try {
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: -22.0084, lng: -47.8908 },
-                zoom: 13,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false
-            });
-
-            if (typeof google.maps.places !== 'undefined') {
-                origemAutocomplete = new google.maps.places.Autocomplete(
-                    document.getElementById('endereco_origem'), { types: ['geocode', 'establishment'] }
-                );
-                origemAutocomplete.bindTo('bounds', map);
-                origemAutocomplete.addListener('place_changed', () => {
-                    origemPlace = origemAutocomplete.getPlace();
-                    if (!origemPlace.geometry) return;
-                    origemPlace.geometry.viewport ? map.fitBounds(origemPlace.geometry.viewport) : (map.setCenter(origemPlace.geometry.location), map.setZoom(17));
-                    if (origemMarker) origemMarker.setMap(null);
-                    origemMarker = new google.maps.Marker({ map, position: origemPlace.geometry.location, title: 'Origem', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', draggable: true });
-                    document.getElementById('lat_origem').value = origemPlace.geometry.location.lat();
-                    document.getElementById('lng_origem').value = origemPlace.geometry.location.lng();
-                    origemMarker.addListener('dragend', () => {
-                        const p = origemMarker.getPosition();
-                        document.getElementById('lat_origem').value = p.lat();
-                        document.getElementById('lng_origem').value = p.lng();
-                        if (window.directionsRenderer) window.directionsRenderer.setMap(null);
-                        calcularDistancia();
-                    });
-                    isClickingOrigin = false;
-                    calcularDistancia();
+        function initMap() {
+            window.GOOGLE_MAPS_LOADED = true;
+            if (typeof google === 'undefined' || typeof google.maps === 'undefined') return;
+            try {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: { lat: -22.0084, lng: -47.8908 },
+                    zoom: 13,
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: false
                 });
 
-                destinoAutocomplete = new google.maps.places.Autocomplete(
-                    document.getElementById('endereco_destino'), { types: ['geocode', 'establishment'] }
-                );
-                destinoAutocomplete.bindTo('bounds', map);
-                destinoAutocomplete.addListener('place_changed', () => {
-                    destinoPlace = destinoAutocomplete.getPlace();
-                    if (!destinoPlace.geometry) return;
-                    destinoPlace.geometry.viewport ? map.fitBounds(destinoPlace.geometry.viewport) : (map.setCenter(destinoPlace.geometry.location), map.setZoom(17));
-                    if (destinoMarker) destinoMarker.setMap(null);
-                    destinoMarker = new google.maps.Marker({ map, position: destinoPlace.geometry.location, title: 'Destino', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', draggable: true });
-                    document.getElementById('lat_destino').value = destinoPlace.geometry.location.lat();
-                    document.getElementById('lng_destino').value = destinoPlace.geometry.location.lng();
-                    destinoMarker.addListener('dragend', () => {
-                        const p = destinoMarker.getPosition();
-                        document.getElementById('lat_destino').value = p.lat();
-                        document.getElementById('lng_destino').value = p.lng();
-                        if (window.directionsRenderer) window.directionsRenderer.setMap(null);
+                if (typeof google.maps.places !== 'undefined') {
+                    origemAutocomplete = new google.maps.places.Autocomplete(
+                        document.getElementById('endereco_origem'), { types: ['geocode', 'establishment'] }
+                    );
+                    origemAutocomplete.bindTo('bounds', map);
+                    origemAutocomplete.addListener('place_changed', () => {
+                        const p = origemAutocomplete.getPlace();
+                        if (!p.geometry) return;
+                        p.geometry.viewport ? map.fitBounds(p.geometry.viewport) : (map.setCenter(p.geometry.location), map.setZoom(17));
+                        if (origemMarker) origemMarker.setMap(null);
+                        origemMarker = new google.maps.Marker({ map, position: p.geometry.location, title: 'Origem', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', draggable: true });
+                        document.getElementById('lat_origem').value = p.geometry.location.lat();
+                        document.getElementById('lng_origem').value = p.geometry.location.lng();
+                        origemMarker.addListener('dragend', () => { const pos = origemMarker.getPosition(); document.getElementById('lat_origem').value = pos.lat(); document.getElementById('lng_origem').value = pos.lng(); if (window.dR) window.dR.setMap(null); calcularDistancia(); });
+                        isClickingOrigin = false;
                         calcularDistancia();
                     });
-                    isClickingOrigin = true;
-                    calcularDistancia();
-                });
-            }
 
-            map.addListener('click', (event) => {
-                const geocoder = new google.maps.Geocoder();
-                if (isClickingOrigin) {
-                    if (origemMarker) origemMarker.setMap(null);
-                    origemMarker = new google.maps.Marker({ map, position: event.latLng, title: 'Origem', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', draggable: true });
-                    document.getElementById('lat_origem').value = event.latLng.lat();
-                    document.getElementById('lng_origem').value = event.latLng.lng();
-                    geocoder.geocode({ location: event.latLng }, (r, s) => { if (s === 'OK' && r[0]) document.getElementById('endereco_origem').value = r[0].formatted_address; });
-                    origemMarker.addListener('dragend', () => { const p = origemMarker.getPosition(); document.getElementById('lat_origem').value = p.lat(); document.getElementById('lng_origem').value = p.lng(); calcularDistancia(); });
-                    isClickingOrigin = false;
-                } else {
-                    if (destinoMarker) destinoMarker.setMap(null);
-                    destinoMarker = new google.maps.Marker({ map, position: event.latLng, title: 'Destino', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', draggable: true });
-                    document.getElementById('lat_destino').value = event.latLng.lat();
-                    document.getElementById('lng_destino').value = event.latLng.lng();
-                    geocoder.geocode({ location: event.latLng }, (r, s) => { if (s === 'OK' && r[0]) document.getElementById('endereco_destino').value = r[0].formatted_address; });
-                    destinoMarker.addListener('dragend', () => { const p = destinoMarker.getPosition(); document.getElementById('lat_destino').value = p.lat(); document.getElementById('lng_destino').value = p.lng(); calcularDistancia(); });
-                    isClickingOrigin = true;
+                    destinoAutocomplete = new google.maps.places.Autocomplete(
+                        document.getElementById('endereco_destino'), { types: ['geocode', 'establishment'] }
+                    );
+                    destinoAutocomplete.bindTo('bounds', map);
+                    destinoAutocomplete.addListener('place_changed', () => {
+                        const p = destinoAutocomplete.getPlace();
+                        if (!p.geometry) return;
+                        p.geometry.viewport ? map.fitBounds(p.geometry.viewport) : (map.setCenter(p.geometry.location), map.setZoom(17));
+                        if (destinoMarker) destinoMarker.setMap(null);
+                        destinoMarker = new google.maps.Marker({ map, position: p.geometry.location, title: 'Destino', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', draggable: true });
+                        document.getElementById('lat_destino').value = p.geometry.location.lat();
+                        document.getElementById('lng_destino').value = p.geometry.location.lng();
+                        destinoMarker.addListener('dragend', () => { const pos = destinoMarker.getPosition(); document.getElementById('lat_destino').value = pos.lat(); document.getElementById('lng_destino').value = pos.lng(); if (window.dR) window.dR.setMap(null); calcularDistancia(); });
+                        isClickingOrigin = true;
+                        calcularDistancia();
+                    });
                 }
-                calcularDistancia();
-            });
-        } catch(e) { console.error('Erro ao inicializar mapa:', e); }
-    }
 
-    function calcularDistancia() {
-        const lo = parseFloat(document.getElementById('lat_origem').value);
-        const go = parseFloat(document.getElementById('lng_origem').value);
-        const ld = parseFloat(document.getElementById('lat_destino').value);
-        const gd = parseFloat(document.getElementById('lng_destino').value);
-        if (!lo || !go || !ld || !gd) return;
-
-        const origem = new google.maps.LatLng(lo, go);
-        const destino = new google.maps.LatLng(ld, gd);
-        if (window.directionsRenderer) window.directionsRenderer.setMap(null);
-        if (window.routeLine) window.routeLine.setMap(null);
-
-        const svc = new google.maps.DirectionsService();
-        const renderer = new google.maps.DirectionsRenderer({
-            map, suppressMarkers: true,
-            polylineOptions: { strokeColor: '#0d5c4a', strokeWeight: 4, strokeOpacity: .85 }
-        });
-
-        svc.route({ origin: origem, destination: destino, travelMode: google.maps.TravelMode.DRIVING, unitSystem: google.maps.UnitSystem.METRIC }, (response, status) => {
-            const resultDiv = document.getElementById('distance_result');
-            if (status === 'OK') {
-                renderer.setDirections(response);
-                let total = 0;
-                response.routes[0].legs.forEach(l => total += l.distance.value);
-                const km = (total / 1000).toFixed(2);
-                document.getElementById('km_rodado').value = km;
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `✅ Distância calculada: <strong>${km} km</strong> — preenchida automaticamente abaixo.`;
-                const bounds = new google.maps.LatLngBounds();
-                response.routes[0].legs.forEach(l => { bounds.extend(l.start_location); bounds.extend(l.end_location); });
-                map.fitBounds(bounds);
-                window.directionsRenderer = renderer;
-            } else {
-                const dist = google.maps.geometry.spherical.computeDistanceBetween(origem, destino);
-                const km = (dist / 1000).toFixed(2);
-                document.getElementById('km_rodado').value = km;
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `⚠ Distância aproximada (linha reta): <strong>${km} km</strong>`;
-            }
-        });
-    }
-
-    document.querySelectorAll('input[name="tipo_veiculo"]').forEach(r => r.addEventListener('change', toggleCampoCarga));
-
-    function toggleModoCalculo() {
-        const modo = document.querySelector('input[name="modo_calculo"]:checked')?.value || 'estimado';
-        const fld = document.querySelector('input[name="litros"]');
-        const lbl = document.querySelector('[data-label-litros]');
-        if (!fld || !lbl) return;
-        if (modo === 'estimado') {
-            fld.disabled = true; fld.required = false; fld.value = '';
-            fld.placeholder = 'Estimado a partir dos km rodados';
-            lbl.textContent = 'Litros de combustível (estimado)';
-        } else {
-            fld.disabled = false; fld.required = true;
-            fld.placeholder = 'Ex: 500,5';
-            lbl.textContent = 'Litros de combustível';
+                map.addListener('click', (event) => {
+                    const geocoder = new google.maps.Geocoder();
+                    if (isClickingOrigin) {
+                        if (origemMarker) origemMarker.setMap(null);
+                        origemMarker = new google.maps.Marker({ map, position: event.latLng, title: 'Origem', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', draggable: true });
+                        document.getElementById('lat_origem').value = event.latLng.lat();
+                        document.getElementById('lng_origem').value = event.latLng.lng();
+                        geocoder.geocode({ location: event.latLng }, (r, s) => { if (s === 'OK' && r[0]) document.getElementById('endereco_origem').value = r[0].formatted_address; });
+                        origemMarker.addListener('dragend', () => { const pos = origemMarker.getPosition(); document.getElementById('lat_origem').value = pos.lat(); document.getElementById('lng_origem').value = pos.lng(); calcularDistancia(); });
+                        isClickingOrigin = false;
+                    } else {
+                        if (destinoMarker) destinoMarker.setMap(null);
+                        destinoMarker = new google.maps.Marker({ map, position: event.latLng, title: 'Destino', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', draggable: true });
+                        document.getElementById('lat_destino').value = event.latLng.lat();
+                        document.getElementById('lng_destino').value = event.latLng.lng();
+                        geocoder.geocode({ location: event.latLng }, (r, s) => { if (s === 'OK' && r[0]) document.getElementById('endereco_destino').value = r[0].formatted_address; });
+                        destinoMarker.addListener('dragend', () => { const pos = destinoMarker.getPosition(); document.getElementById('lat_destino').value = pos.lat(); document.getElementById('lng_destino').value = pos.lng(); calcularDistancia(); });
+                        isClickingOrigin = true;
+                    }
+                    calcularDistancia();
+                });
+            } catch (e) { console.error('Erro ao inicializar mapa:', e); }
         }
-    }
 
-    document.querySelectorAll('input[name="modo_calculo"]').forEach(r => r.addEventListener('change', toggleModoCalculo));
-    document.getElementById('btn_calcular_distancia').addEventListener('click', calcularDistancia);
-    document.addEventListener('DOMContentLoaded', () => { toggleCampoCarga(); toggleModoCalculo(); });
+        function calcularDistancia() {
+            const lo = parseFloat(document.getElementById('lat_origem').value);
+            const go = parseFloat(document.getElementById('lng_origem').value);
+            const ld = parseFloat(document.getElementById('lat_destino').value);
+            const gd = parseFloat(document.getElementById('lng_destino').value);
+            if (!lo || !go || !ld || !gd) return;
+            const origem = new google.maps.LatLng(lo, go);
+            const destino = new google.maps.LatLng(ld, gd);
+            if (window.dR) window.dR.setMap(null);
+            if (window.rL) window.rL.setMap(null);
+            const svc = new google.maps.DirectionsService();
+            const renderer = new google.maps.DirectionsRenderer({ map, suppressMarkers: true, polylineOptions: { strokeColor: '#0d5c4a', strokeWeight: 4, strokeOpacity: .9 } });
+            svc.route({ origin: origem, destination: destino, travelMode: google.maps.TravelMode.DRIVING, unitSystem: google.maps.UnitSystem.METRIC }, (response, status) => {
+                const resultDiv = document.getElementById('distance_result');
+                if (status === 'OK') {
+                    renderer.setDirections(response);
+                    let total = 0;
+                    response.routes[0].legs.forEach(l => total += l.distance.value);
+                    const km = (total / 1000).toFixed(2);
+                    document.getElementById('km_rodado').value = km;
+                    resultDiv.classList.remove('hidden');
+                    resultDiv.innerHTML = `✅ Distância calculada: <strong>${km} km</strong> — preenchida abaixo.`;
+                    const bounds = new google.maps.LatLngBounds();
+                    response.routes[0].legs.forEach(l => { bounds.extend(l.start_location); bounds.extend(l.end_location); });
+                    map.fitBounds(bounds);
+                    window.dR = renderer;
+                } else {
+                    const dist = google.maps.geometry.spherical.computeDistanceBetween(origem, destino);
+                    const km = (dist / 1000).toFixed(2);
+                    document.getElementById('km_rodado').value = km;
+                    resultDiv.classList.remove('hidden');
+                    resultDiv.innerHTML = `⚠ Distância aproximada (linha reta): <strong>${km} km</strong>`;
+                }
+            });
+        }
 
-    window.gm_authFailure = () => {
-        const el = document.getElementById('map');
-        if (el) el.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:32px;background:#fef2f2;border-radius:8px;color:#dc2626;text-align:center"><strong>⚠ Erro de autenticação do Google Maps</strong><p style="font-size:12px;color:#9ca3af">Verifique as restrições da API key no Google Cloud Console.</p></div>`;
-    };
-</script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn_calcular_distancia').addEventListener('click', calcularDistancia);
+        });
+
+        window.gm_authFailure = () => {
+            const el = document.getElementById('map');
+            if (el) el.innerHTML = `<div class="flex items-center justify-center h-full bg-error/10 rounded-xl text-error text-sm p-6 text-center"><strong>⚠ Erro de autenticação do Google Maps</strong></div>`;
+        };
+    </script>
+
 </body>
 </html>

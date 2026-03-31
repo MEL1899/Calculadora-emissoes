@@ -1,580 +1,297 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html data-theme="emerald" lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Emissões — Carbon Log</title>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- DaisyUI v5 + Tailwind v4 (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style type="text/tailwindcss">
+        @theme { --font-sans: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+
     <style>
-        :root {
-            --g900: #0a4a3b;
-            --g800: #0d5c4a;
-            --g700: #127a62;
-            --g600: #16856b;
-            --g400: #2ab090;
-            --g100: #c8ece4;
-            --g50:  #e8f5f1;
-            --bg:   #f2f7f5;
-            --card: #ffffff;
-            --txt:  #111827;
-            --muted:#6b7280;
-            --border:#dde8e5;
-            --red:  #dc2626;
-            --red-bg: #fef2f2;
-            --red-border: #fca5a5;
-            --yellow: #d97706;
-            --yellow-bg: #fffbeb;
-            --yellow-border: #fcd34d;
-            --radius: 14px;
-            --rsm: 8px;
-            --shadow: 0 2px 12px rgba(10,74,59,.07);
+        [data-theme="emerald"] {
+            --color-primary: oklch(37.3% 0.148 170);
+            --color-primary-content: oklch(100% 0 0);
+            --color-secondary: oklch(49% 0.152 166);
+            --color-secondary-content: oklch(100% 0 0);
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Hero gradient */
+        .hero-emission {
+            background: linear-gradient(135deg, oklch(37.3% 0.148 170) 0%, oklch(49% 0.152 166) 100%);
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg);
-            color: var(--txt);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        /* ── Topbar ──────────────────────────────── */
-        .topbar {
-            background: #fff;
-            border-bottom: 1px solid var(--border);
-            height: 58px;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            gap: 10px;
-        }
-        .logo-pill {
-            width: 34px; height: 34px;
-            background: linear-gradient(135deg, var(--g900), var(--g600));
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 17px;
-        }
-        .logo-name { font-size: .95rem; font-weight: 800; color: var(--txt); letter-spacing: -.02em; }
-        .logo-tag {
-            font-size: .62rem; font-weight: 700; color: var(--g700);
-            background: var(--g50); border: 1px solid var(--g100);
-            padding: 2px 8px; border-radius: 99px;
-            text-transform: uppercase; letter-spacing: .04em;
-        }
-
-        /* ── Layout ──────────────────────────────── */
-        .main {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 40px 20px 80px;
-        }
-
-        /* ── Page header ─────────────────────────── */
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .page-header h1 {
-            font-size: 1.05rem;
-            font-weight: 800;
-            letter-spacing: -.02em;
-            color: var(--txt);
-        }
-        .page-date {
-            font-size: .78rem;
-            color: var(--muted);
-        }
-
-        /* ── Hero card ───────────────────────────── */
-        .hero-card {
-            background: linear-gradient(135deg, var(--g900) 0%, var(--g600) 100%);
-            border-radius: var(--radius);
-            padding: 32px 28px 28px;
-            color: #fff;
-            margin-bottom: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-card::before {
-            content: '';
-            position: absolute;
-            top: -40px; right: -40px;
-            width: 160px; height: 160px;
-            border-radius: 50%;
-            background: rgba(255,255,255,.06);
-            pointer-events: none;
-        }
-        .hero-card::after {
-            content: '';
-            position: absolute;
-            bottom: -60px; left: -20px;
-            width: 200px; height: 200px;
-            border-radius: 50%;
-            background: rgba(255,255,255,.04);
-            pointer-events: none;
-        }
-        .hero-eyebrow {
-            font-size: .72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            opacity: .8;
-            margin-bottom: 8px;
-        }
-        .hero-number {
-            font-size: 3.2rem;
-            font-weight: 800;
-            letter-spacing: -.04em;
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-        .hero-unit {
-            font-size: 1.3rem;
-            font-weight: 500;
-            opacity: .85;
-            margin-left: 4px;
-        }
-        .hero-desc {
-            font-size: .8rem;
-            opacity: .75;
-            margin-top: 8px;
-        }
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(255,255,255,.14);
-            border: 1px solid rgba(255,255,255,.2);
-            border-radius: 99px;
-            padding: 4px 11px;
-            font-size: .7rem;
-            font-weight: 600;
-            margin-top: 12px;
-        }
-
-        /* ── Comparison card ─────────────────────── */
-        .comp-card {
-            border-radius: var(--radius);
-            border: 1.5px solid;
-            padding: 20px 22px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-        }
-        .comp-card.good  { background: var(--g50);          border-color: var(--g100); }
-        .comp-card.bad   { background: var(--red-bg);        border-color: var(--red-border); }
-        .comp-card.mid   { background: var(--yellow-bg);     border-color: var(--yellow-border); }
-        .comp-card.none  { background: #f9fafb;              border-color: #e5e7eb; }
-
-        .comp-icon {
-            font-size: 1.8rem;
-            line-height: 1;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        .comp-body { flex: 1; }
-        .comp-title {
-            font-size: .8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            margin-bottom: 3px;
-        }
-        .comp-card.good  .comp-title { color: var(--g800); }
-        .comp-card.bad   .comp-title { color: var(--red); }
-        .comp-card.mid   .comp-title { color: var(--yellow); }
-        .comp-card.none  .comp-title { color: var(--muted); }
-
-        .comp-text {
-            font-size: .85rem;
-            color: var(--txt);
-            line-height: 1.5;
-        }
-        .comp-nums {
-            display: flex;
-            gap: 18px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        .comp-num-item { }
-        .comp-num-label {
-            font-size: .68rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            color: var(--muted);
-            display: block;
-        }
-        .comp-num-value {
-            font-size: .9rem;
-            font-weight: 700;
-            color: var(--txt);
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* ── Quick metrics row ───────────────────── */
-        .metrics-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .metric-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--rsm);
-            padding: 16px;
-            box-shadow: var(--shadow);
-        }
-        .metric-icon {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            display: block;
-        }
-        .metric-label {
-            font-size: .68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            color: var(--muted);
-            margin-bottom: 4px;
-        }
-        .metric-value {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: var(--txt);
-            letter-spacing: -.02em;
-            font-variant-numeric: tabular-nums;
-        }
-        .metric-unit {
-            font-size: .72rem;
-            color: var(--muted);
-            margin-top: 1px;
-        }
-
-        /* ── Sections ────────────────────────────── */
-        .section {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-        }
-        .section-head {
-            padding: 14px 20px;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg);
-        }
-        .section-head h2 {
-            font-size: .72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .07em;
-            color: var(--g800);
-        }
-
-        /* ── Tables ──────────────────────────────── */
-        table.rtbl {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .875rem;
-        }
-        table.rtbl th, table.rtbl td {
-            padding: 11px 20px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        table.rtbl tr:last-child th, table.rtbl tr:last-child td { border-bottom: none; }
-        table.rtbl th {
-            width: 44%;
-            font-weight: 600;
-            color: var(--muted);
-            font-size: .8rem;
-        }
-        table.rtbl td {
-            font-weight: 500;
-            color: var(--txt);
-        }
-        table.rtbl tr:hover td { background: rgba(13,92,74,.02); }
-
-        /* ── CTA ─────────────────────────────────── */
-        .cta-block {
-            background: var(--card);
-            border: 1.5px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 22px 24px;
-            margin-bottom: 24px;
-        }
-        .cta-block h3 {
-            font-size: .95rem;
-            font-weight: 700;
-            color: var(--txt);
-            margin-bottom: 6px;
-        }
-        .cta-block p {
-            font-size: .82rem;
-            color: var(--muted);
-            margin-bottom: 14px;
-            line-height: 1.55;
-        }
-
-        /* ── Buttons ─────────────────────────────── */
-        .btn-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-        .btn {
-            padding: 12px 20px;
-            border-radius: var(--rsm);
-            font-size: .85rem;
-            font-weight: 700;
-            font-family: inherit;
-            text-decoration: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            transition: all .15s;
-            border: none;
-        }
-        .btn:active { transform: scale(.98); }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--g900), var(--g700));
-            color: #fff;
-        }
-        .btn-primary:hover { box-shadow: 0 4px 14px rgba(10,74,59,.28); transform: translateY(-1px); }
-        .btn-outline {
-            background: #fff;
-            color: var(--g800);
-            border: 1.5px solid var(--g100);
-        }
-        .btn-outline:hover { background: var(--g50); border-color: var(--g400); }
-        .btn-ghost {
-            background: #f9fafb;
-            color: var(--txt);
-            border: 1.5px solid var(--border);
-        }
-        .btn-ghost:hover { background: #f3f4f6; }
-
-        /* ── Print ───────────────────────────────── */
         @media print {
-            .topbar, .btn-row, .cta-block { display: none !important; }
-            body { background: #fff; }
-            .section, .hero-card, .metrics-row { box-shadow: none; }
-            .hero-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
-
-        /* ── Responsive ──────────────────────────── */
-        @media (max-width: 520px) {
-            .metrics-row { grid-template-columns: 1fr 1fr; }
-            .hero-number { font-size: 2.4rem; }
-            .comp-nums { gap: 12px; }
-        }
-        @media (max-width: 360px) {
-            .metrics-row { grid-template-columns: 1fr; }
+            .no-print { display: none !important; }
+            .hero-emission { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { background: white; }
         }
     </style>
 </head>
-<body>
 
-<nav class="topbar">
-    <div class="logo-pill">🌿</div>
-    <span class="logo-name">Carbon Log</span>
-    <span class="logo-tag">GHG Protocol</span>
-</nav>
+<body class="bg-base-200 min-h-screen">
 
-<main class="main">
-
-    <div class="page-header">
-        <h1>Relatório de Emissões de GEE</h1>
-        <span class="page-date">{{ data_relatorio }}</span>
-    </div>
-
-    <!-- Hero: número principal -->
-    <div class="hero-card">
-        <div class="hero-eyebrow">Emissão total da viagem</div>
-        <div>
-            <span class="hero-number">{{ emissao_final }}</span>
-            <span class="hero-unit">tCO₂e</span>
-        </div>
-        <p class="hero-desc">Emissão final — consumo de combustível ajustado pela idade do veículo</p>
-        <div class="hero-badge">
-            {% if modo_calculo == 'preciso' %}🔒 {{ modo_calculo_selo }}{% else %}≈ {{ modo_calculo_selo }}{% endif %}
+    <!-- ── Navbar ──────────────────────────────────────── -->
+    <div class="navbar bg-base-100 border-b border-base-300 shadow-sm no-print">
+        <div class="max-w-2xl mx-auto w-full px-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl shadow-sm">🌿</div>
+            <span class="font-extrabold text-lg tracking-tight">Carbon Log</span>
+            <div class="badge badge-outline badge-sm font-semibold text-primary border-primary/30">GHG Protocol</div>
         </div>
     </div>
 
-    <!-- Comparação com o setor -->
-    {% if comparacao_setor_situacao == 'indisponível' %}
-    <div class="comp-card none">
-        <div class="comp-icon">➖</div>
-        <div class="comp-body">
-            <div class="comp-title">Comparação indisponível</div>
-            <div class="comp-text">Preencha km rodados para comparar com a média de referência do setor.</div>
+    <!-- ── Main ────────────────────────────────────────── -->
+    <main class="max-w-2xl mx-auto px-4 py-10">
+
+        <!-- Page header -->
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+            <div>
+                <h1 class="text-xl font-extrabold tracking-tight">Relatório de Emissões de GEE</h1>
+                <p class="text-sm text-base-content/50">Carbon Log · {{ data_relatorio }}</p>
+            </div>
+            <div class="badge badge-success gap-1.5 py-3 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                Cálculo realizado
+            </div>
         </div>
-    </div>
-    {% elif comparacao_setor_situacao == 'abaixo' %}
-    <div class="comp-card good">
-        <div class="comp-icon">✅</div>
-        <div class="comp-body">
-            <div class="comp-title">{{ comparacao_setor_percentual }}% abaixo da média</div>
-            <div class="comp-text">Sua viagem emitiu <strong>menos</strong> do que a referência do setor. Bom desempenho.</div>
-            <div class="comp-nums">
-                <div class="comp-num-item">
-                    <span class="comp-num-label">Média do setor</span>
-                    <span class="comp-num-value">{{ media_setor_intensidade_km }} tCO₂e/km</span>
-                </div>
-                <div class="comp-num-item">
-                    <span class="comp-num-label">Seu resultado</span>
-                    <span class="comp-num-value">{{ intensidade_km }} tCO₂e/km</span>
+
+        <!-- ── Hero: Emissão total ───────────────────── -->
+        <div class="hero-emission rounded-2xl p-7 text-primary-content mb-4 shadow-lg relative overflow-hidden">
+            <!-- Círculos decorativos -->
+            <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/5 pointer-events-none"></div>
+            <div class="absolute -bottom-14 -left-6 w-52 h-52 rounded-full bg-white/4 pointer-events-none"></div>
+
+            <p class="text-xs font-bold uppercase tracking-widest opacity-75 mb-2">Emissão total da viagem</p>
+            <div class="flex items-end gap-2 mb-1">
+                <span class="text-5xl font-extrabold tracking-tight leading-none">{{ emissao_final }}</span>
+                <span class="text-xl font-semibold opacity-80 mb-1">tCO₂e</span>
+            </div>
+            <p class="text-sm opacity-70 mt-2">Emissão final — consumo de combustível ajustado pela idade do veículo</p>
+
+            <!-- Modo badge -->
+            <div class="mt-4 inline-flex items-center gap-2 bg-white/15 border border-white/20 rounded-full px-3 py-1.5 text-xs font-semibold">
+                {% if modo_calculo == 'preciso' %}🔒 {{ modo_calculo_selo }}{% else %}≈ {{ modo_calculo_selo }}{% endif %}
+            </div>
+        </div>
+
+        <!-- ── Comparação com o setor ────────────────── -->
+        {% if comparacao_setor_situacao == 'indisponível' %}
+        <div class="alert mb-4 border border-base-300 bg-base-100">
+            <span class="text-xl">➖</span>
+            <div>
+                <p class="font-bold text-sm">Comparação indisponível</p>
+                <p class="text-xs text-base-content/55">Preencha km rodados para comparar com a referência do setor.</p>
+            </div>
+        </div>
+
+        {% elif comparacao_setor_situacao == 'abaixo' %}
+        <div class="alert alert-success mb-4 border-success/30">
+            <span class="text-2xl">✅</span>
+            <div class="flex-1">
+                <p class="font-bold">{{ comparacao_setor_percentual }}% abaixo da média do setor</p>
+                <p class="text-sm opacity-80">Sua viagem emitiu <strong>menos</strong> do que a referência. Bom desempenho!</p>
+                <div class="flex gap-6 mt-2">
+                    <div>
+                        <p class="text-xs font-semibold uppercase opacity-60 tracking-wide">Média do setor</p>
+                        <p class="font-bold font-mono text-sm">{{ media_setor_intensidade_km }} <span class="font-normal text-xs opacity-70">tCO₂e/km</span></p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase opacity-60 tracking-wide">Seu resultado</p>
+                        <p class="font-bold font-mono text-sm">{{ intensidade_km }} <span class="font-normal text-xs opacity-70">tCO₂e/km</span></p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    {% elif comparacao_setor_situacao == 'acima' %}
-    <div class="comp-card bad">
-        <div class="comp-icon">⚠️</div>
-        <div class="comp-body">
-            <div class="comp-title">{{ comparacao_setor_percentual }}% acima da média</div>
-            <div class="comp-text">Sua viagem emitiu <strong>mais</strong> do que a referência do setor. Há espaço para redução.</div>
-            <div class="comp-nums">
-                <div class="comp-num-item">
-                    <span class="comp-num-label">Média do setor</span>
-                    <span class="comp-num-value">{{ media_setor_intensidade_km }} tCO₂e/km</span>
-                </div>
-                <div class="comp-num-item">
-                    <span class="comp-num-label">Seu resultado</span>
-                    <span class="comp-num-value">{{ intensidade_km }} tCO₂e/km</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% else %}
-    <div class="comp-card mid">
-        <div class="comp-icon">📊</div>
-        <div class="comp-body">
-            <div class="comp-title">Na faixa da média</div>
-            <div class="comp-text">Sua viagem ficou dentro da faixa de referência do setor (±5%).</div>
-            <div class="comp-nums">
-                <div class="comp-num-item">
-                    <span class="comp-num-label">Média do setor</span>
-                    <span class="comp-num-value">{{ media_setor_intensidade_km }} tCO₂e/km</span>
-                </div>
-                <div class="comp-num-item">
-                    <span class="comp-num-label">Seu resultado</span>
-                    <span class="comp-num-value">{{ intensidade_km }} tCO₂e/km</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 
-    <!-- Métricas rápidas -->
-    <div class="metrics-row">
-        <div class="metric-card">
-            <span class="metric-icon">⚗️</span>
-            <div class="metric-label">Emissão base</div>
-            <div class="metric-value">{{ emissao_base }}</div>
-            <div class="metric-unit">tCO₂e</div>
+        {% elif comparacao_setor_situacao == 'acima' %}
+        <div class="alert alert-error mb-4 border-error/30">
+            <span class="text-2xl">⚠️</span>
+            <div class="flex-1">
+                <p class="font-bold">{{ comparacao_setor_percentual }}% acima da média do setor</p>
+                <p class="text-sm opacity-80">Sua viagem emitiu <strong>mais</strong> do que a referência. Há espaço para redução.</p>
+                <div class="flex gap-6 mt-2">
+                    <div>
+                        <p class="text-xs font-semibold uppercase opacity-60 tracking-wide">Média do setor</p>
+                        <p class="font-bold font-mono text-sm">{{ media_setor_intensidade_km }} <span class="font-normal text-xs opacity-70">tCO₂e/km</span></p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase opacity-60 tracking-wide">Seu resultado</p>
+                        <p class="font-bold font-mono text-sm">{{ intensidade_km }} <span class="font-normal text-xs opacity-70">tCO₂e/km</span></p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="metric-card">
-            <span class="metric-icon">⏳</span>
-            <div class="metric-label">Fator de idade</div>
-            <div class="metric-value">{{ fator_idade }}</div>
-            <div class="metric-unit">Multiplicador</div>
-        </div>
-        <div class="metric-card">
-            <span class="metric-icon">⛽</span>
-            <div class="metric-label">Eficiência</div>
-            <div class="metric-value">{{ eficiencia }}</div>
-            <div class="metric-unit">km / L</div>
-        </div>
-        {% if km_rodado|float > 0 %}
-        <div class="metric-card">
-            <span class="metric-icon">📍</span>
-            <div class="metric-label">Por quilômetro</div>
-            <div class="metric-value">{{ intensidade_km }}</div>
-            <div class="metric-unit">tCO₂e / km</div>
+
+        {% else %}
+        <div class="alert alert-warning mb-4 border-warning/30">
+            <span class="text-2xl">📊</span>
+            <div class="flex-1">
+                <p class="font-bold">Na faixa da média do setor</p>
+                <p class="text-sm opacity-80">Seu resultado ficou dentro da faixa de referência (±5%).</p>
+                <div class="flex gap-6 mt-2">
+                    <div>
+                        <p class="text-xs font-semibold uppercase opacity-60 tracking-wide">Média do setor</p>
+                        <p class="font-bold font-mono text-sm">{{ media_setor_intensidade_km }} <span class="font-normal text-xs opacity-70">tCO₂e/km</span></p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase opacity-60 tracking-wide">Seu resultado</p>
+                        <p class="font-bold font-mono text-sm">{{ intensidade_km }} <span class="font-normal text-xs opacity-70">tCO₂e/km</span></p>
+                    </div>
+                </div>
+            </div>
         </div>
         {% endif %}
-        {% if tipo_veiculo_raw == 'caminhao' %}
-        <div class="metric-card">
-            <span class="metric-icon">📦</span>
-            <div class="metric-label">Por tonelada</div>
-            <div class="metric-value">{{ intensidade_ton }}</div>
-            <div class="metric-unit">tCO₂e / ton</div>
+
+        <!-- ── Stats grid ────────────────────────────── -->
+        <div class="stats stats-vertical sm:stats-horizontal w-full shadow border border-base-300 bg-base-100 mb-4">
+            <div class="stat">
+                <div class="stat-figure text-primary text-2xl">⚗️</div>
+                <div class="stat-title text-xs">Emissão base</div>
+                <div class="stat-value text-2xl font-extrabold">{{ emissao_base }}</div>
+                <div class="stat-desc font-semibold text-base-content/50">tCO₂e</div>
+            </div>
+            <div class="stat">
+                <div class="stat-figure text-primary text-2xl">⏳</div>
+                <div class="stat-title text-xs">Fator de idade</div>
+                <div class="stat-value text-2xl font-extrabold">{{ fator_idade }}</div>
+                <div class="stat-desc font-semibold text-base-content/50">multiplicador</div>
+            </div>
+            <div class="stat">
+                <div class="stat-figure text-primary text-2xl">⛽</div>
+                <div class="stat-title text-xs">Eficiência</div>
+                <div class="stat-value text-2xl font-extrabold">{{ eficiencia }}</div>
+                <div class="stat-desc font-semibold text-base-content/50">km / L</div>
+            </div>
         </div>
-        {% endif %}
-    </div>
 
-    <!-- Dados da viagem -->
-    <div class="section">
-        <div class="section-head"><h2>Dados da viagem</h2></div>
-        <table class="rtbl">
-            <tr><th>Tipo de veículo</th><td>{{ tipo_veiculo }}</td></tr>
-            <tr><th>Modo de cálculo</th><td>{{ modo_calculo_label }}</td></tr>
-            <tr><th>Combustível</th><td>{{ tipo_combustivel }}</td></tr>
-            <tr><th>Litros consumidos</th><td>{{ litros }} L <span style="font-size:.78rem;color:var(--muted)">({{ litros_texto_origem }})</span></td></tr>
-            <tr><th>Ano de fabricação</th><td>{{ ano_fabricacao }}</td></tr>
-            <tr><th>Idade do veículo</th><td>{{ idade_veiculo }} anos</td></tr>
-            <tr><th>Quilômetros rodados</th><td>{{ km_rodado }} km</td></tr>
-            {% if tipo_veiculo_raw == 'caminhao' %}
-            <tr><th>Carga transportada</th><td>{{ carga_ton }} toneladas</td></tr>
-            {% endif %}
-            {% if endereco_origem and endereco_origem != 'Não informado' %}
-            <tr><th>Origem</th><td>{{ endereco_origem }}</td></tr>
-            {% endif %}
-            {% if endereco_destino and endereco_destino != 'Não informado' %}
-            <tr><th>Destino</th><td>{{ endereco_destino }}</td></tr>
-            {% endif %}
-        </table>
-    </div>
-
-    <!-- Resultados do cálculo -->
-    <div class="section">
-        <div class="section-head"><h2>Resultados do cálculo</h2></div>
-        <table class="rtbl">
-            <tr><th>Emissão base</th><td>{{ emissao_base }} tCO₂e</td></tr>
-            <tr><th>Fator de ajuste (idade)</th><td>{{ fator_idade }}</td></tr>
-            <tr><th>Emissão final</th><td><strong>{{ emissao_final }} tCO₂e</strong></td></tr>
+        <!-- Stats extras -->
+        {% if km_rodado|float > 0 or tipo_veiculo_raw == 'caminhao' %}
+        <div class="stats stats-vertical sm:stats-horizontal w-full shadow border border-base-300 bg-base-100 mb-4">
             {% if km_rodado|float > 0 %}
-            <tr><th>Intensidade por km</th><td>{{ intensidade_km }} tCO₂e/km</td></tr>
+            <div class="stat">
+                <div class="stat-figure text-secondary text-2xl">📍</div>
+                <div class="stat-title text-xs">Por quilômetro</div>
+                <div class="stat-value text-xl font-extrabold">{{ intensidade_km }}</div>
+                <div class="stat-desc font-semibold text-base-content/50">tCO₂e / km</div>
+            </div>
             {% endif %}
-            <tr><th>Eficiência</th><td>{{ eficiencia }} km/L</td></tr>
             {% if tipo_veiculo_raw == 'caminhao' %}
-            <tr><th>Intensidade por tonelada</th><td>{{ intensidade_ton }} tCO₂e/ton</td></tr>
+            <div class="stat">
+                <div class="stat-figure text-secondary text-2xl">📦</div>
+                <div class="stat-title text-xs">Por tonelada</div>
+                <div class="stat-value text-xl font-extrabold">{{ intensidade_ton }}</div>
+                <div class="stat-desc font-semibold text-base-content/50">tCO₂e / ton</div>
+            </div>
             {% endif %}
-        </table>
-    </div>
-
-    <!-- CTA empresarial -->
-    <div class="cta-block">
-        <h3>Automatize o cálculo de toda a sua frota.</h3>
-        <p>Integre o Carbon Log com os dados de abastecimento e telemetria. Gere relatórios consolidados auditáveis pelo GHG Protocol Brasil para toda a frota — ideal para compliance ESG.</p>
-        <a href="#" class="btn btn-primary">Conhecer a versão empresarial →</a>
-    </div>
-
-    <!-- Ações -->
-    <div class="btn-row">
-        <button type="button" class="btn btn-ghost" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
-        <a href="/" class="btn btn-outline">↩ Novo cálculo</a>
-        {% if arquivo_relatorio %}
-        <a href="{{ arquivo_relatorio }}" download class="btn btn-primary">📥 Baixar relatório PDF</a>
+        </div>
         {% endif %}
-    </div>
 
-</main>
+        <!-- ── Dados da viagem ───────────────────────── -->
+        <div class="card bg-base-100 shadow border border-base-300 mb-4">
+            <div class="card-body p-0">
+                <div class="px-5 py-3.5 border-b border-base-300 bg-base-200/60 rounded-t-2xl">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-primary">Dados da viagem</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr><th class="text-base-content/60 font-semibold text-xs w-2/5">Tipo de veículo</th><td class="font-medium">{{ tipo_veiculo }}</td></tr>
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Modo de cálculo</th><td class="font-medium">{{ modo_calculo_label }}</td></tr>
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Combustível</th><td class="font-medium">{{ tipo_combustivel }}</td></tr>
+                            <tr>
+                                <th class="text-base-content/60 font-semibold text-xs">Litros consumidos</th>
+                                <td class="font-medium">{{ litros }} L <span class="text-xs text-base-content/40">({{ litros_texto_origem }})</span></td>
+                            </tr>
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Ano de fabricação</th><td class="font-medium">{{ ano_fabricacao }}</td></tr>
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Idade do veículo</th><td class="font-medium">{{ idade_veiculo }} anos</td></tr>
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Quilômetros rodados</th><td class="font-medium">{{ km_rodado }} km</td></tr>
+                            {% if tipo_veiculo_raw == 'caminhao' %}
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Carga transportada</th><td class="font-medium">{{ carga_ton }} toneladas</td></tr>
+                            {% endif %}
+                            {% if endereco_origem and endereco_origem != 'Não informado' %}
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Origem</th><td class="font-medium">{{ endereco_origem }}</td></tr>
+                            {% endif %}
+                            {% if endereco_destino and endereco_destino != 'Não informado' %}
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Destino</th><td class="font-medium">{{ endereco_destino }}</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Resultados do cálculo ─────────────────── -->
+        <div class="card bg-base-100 shadow border border-base-300 mb-4">
+            <div class="card-body p-0">
+                <div class="px-5 py-3.5 border-b border-base-300 bg-base-200/60 rounded-t-2xl">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-primary">Resultados do cálculo</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr><th class="text-base-content/60 font-semibold text-xs w-2/5">Emissão base</th><td class="font-medium">{{ emissao_base }} <span class="text-xs text-base-content/50">tCO₂e</span></td></tr>
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Fator de ajuste (idade)</th><td class="font-medium">{{ fator_idade }}</td></tr>
+                            <tr class="bg-primary/5">
+                                <th class="text-base-content/60 font-semibold text-xs">Emissão final</th>
+                                <td class="font-extrabold text-primary">{{ emissao_final }} <span class="text-xs font-semibold">tCO₂e</span></td>
+                            </tr>
+                            {% if km_rodado|float > 0 %}
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Intensidade por km</th><td class="font-medium">{{ intensidade_km }} <span class="text-xs text-base-content/50">tCO₂e/km</span></td></tr>
+                            {% endif %}
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Eficiência</th><td class="font-medium">{{ eficiencia }} <span class="text-xs text-base-content/50">km/L</span></td></tr>
+                            {% if tipo_veiculo_raw == 'caminhao' %}
+                            <tr><th class="text-base-content/60 font-semibold text-xs">Intensidade por tonelada</th><td class="font-medium">{{ intensidade_ton }} <span class="text-xs text-base-content/50">tCO₂e/ton</span></td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CTA empresarial ───────────────────────── -->
+        <div class="card bg-base-100 border-2 border-dashed border-base-300 shadow-none mb-6 no-print">
+            <div class="card-body py-5">
+                <h3 class="card-title text-base font-bold">Automatize para toda a sua frota.</h3>
+                <p class="text-sm text-base-content/55 leading-relaxed">
+                    Integre o Carbon Log com dados de abastecimento e telemetria. Gere relatórios auditáveis pelo GHG Protocol Brasil para todos os veículos — ideal para compliance ESG.
+                </p>
+                <div class="card-actions mt-1">
+                    <a href="#" class="btn btn-primary btn-sm font-bold">Conhecer a versão empresarial →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Ações ──────────────────────────────────── -->
+        <div class="flex flex-wrap gap-3 no-print">
+            <button type="button" onclick="window.print()"
+                    class="btn btn-ghost border border-base-300 font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Imprimir / Salvar PDF
+            </button>
+            <a href="/" class="btn btn-ghost border border-base-300 font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Novo cálculo
+            </a>
+            {% if arquivo_relatorio %}
+            <a href="{{ arquivo_relatorio }}" download class="btn btn-primary font-bold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Baixar relatório PDF
+            </a>
+            {% endif %}
+        </div>
+
+    </main>
+
 </body>
 </html>
